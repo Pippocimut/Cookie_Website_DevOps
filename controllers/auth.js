@@ -3,7 +3,6 @@ const bcrypt = require('bcryptjs')
 const nodemailer = require('nodemailer')
 const sendgridTransport = require('nodemailer-sendgrid-transport');
 const crypto = require('crypto');
-const { reset } = require('nodemon');
 const { validationResult} = require('express-validator')
 
 
