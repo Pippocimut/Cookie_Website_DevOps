@@ -15,6 +15,7 @@ const compression = require('compression');
 const MONGODB_URI = process.env.MONGODB_URI
 
 const app = express();
+
 const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: 'sessions'
