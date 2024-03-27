@@ -10,8 +10,6 @@ const flash = require('connect-flash');
 const multer = require('multer');
 const errorController = require('./controllers/error');
 const User = require('./models/user');
-const dotenv = require('dotenv')
-dotenv.config()
 
 const MONGODB_URI = process.env.MONGODB_URI
 
