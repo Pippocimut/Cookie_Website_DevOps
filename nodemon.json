@@ -1,6 +1,7 @@
 {
     "env":
     {
-        "MONGODB_URI": "mongodb+srv://NodeJSUser:h71HZL487bl0eEhL@cluster0.lxafrex.mongodb.net/shop"
+        "MONGODB_URI": "mongodb+srv://NodeJSUser:h71HZL487bl0eEhL@cluster0.lxafrex.mongodb.net/shop",
+        "PORT": 3000
     }
 }
