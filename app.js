@@ -10,6 +10,7 @@ const flash = require('connect-flash');
 const multer = require('multer');
 const errorController = require('./controllers/error');
 const User = require('./models/user');
+const compression = require('compression');
 
 const MONGODB_URI = process.env.MONGODB_URI
 
@@ -67,6 +68,8 @@ app.set('views', 'pages/views');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
+
+app.use(compression());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(
