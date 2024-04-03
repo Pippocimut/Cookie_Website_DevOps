@@ -11,8 +11,10 @@ const multer = require('multer');
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 const compression = require('compression');
+const dotenv = require('dotenv');
+dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI
+const MONGODB_URI = process.env.COSMOS_CONNECTION_STRING //process.env.MONGODB_URI 
 
 const app = express();
 
