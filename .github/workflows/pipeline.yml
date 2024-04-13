@@ -5,7 +5,7 @@ jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./
+      - run: cd ..
       - run: npm i
       - run: npm run build --if-present
       - run: npm test
