@@ -1,5 +1,7 @@
 :root {
-    --primary: rgb(70, 119, 24);
-    --secondary: #d0d0d0;
-    --active: rgb(170, 238, 25);
+    --secondary: #436850;
+    --light: #FBFADA;
+    --dark: #12372A;
+    --error:#ff3209;;
+    --error_background:#ffdb80;
   }

@@ -1,8 +1,10 @@
 module.exports = ((req,res,next) => {
     if(!req.session.isLoggedIn){
-        console.log("No login")
-        return res.redirect('/login')
-        //useless comment
+        return res.status(401).render('401', {
+            pageTitle: 'Not authorized',
+            path: '/401',
+            isAuthenticated: req.session.isLoggedIn
+          });
     }
     next();
 });

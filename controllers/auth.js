@@ -5,15 +5,17 @@ const sendgridTransport = require('nodemailer-sendgrid-transport');
 const crypto = require('crypto');
 const { validationResult} = require('express-validator')
 
+const dotenv = require('dotenv')
+dotenv.config()
 
 const transporter = nodemailer.createTransport(sendgridTransport({
   auth: {
-    api_key: process.env.SEND_KEY
+    api_key: process.env.SenGrid
   }
 }));
 
 exports.getLogin = (req, res, next) => {
-
+  
   var message = req.flash('error')
   if(message.length>0){
     message = message[0];
@@ -34,6 +36,7 @@ exports.getLogin = (req, res, next) => {
 };
 
 exports.getSignup = (req, res, next) => {
+  console.log("Entered get signup")
   var message = req.flash('error')
   if(message.length>0){
     message = message[0];
@@ -85,6 +88,18 @@ exports.postLogin = (req, res, next) => {
           validationErrors: []
         });
       }
+      if(!user.active){
+        return res.status(402).render('auth/login', {
+          path: '/login',
+          pageTitle: 'Login',
+          errorMessage: 'Verify your email before loggin in.',
+          oldInput : {
+            email: email,
+            password: password
+          },
+          validationErrors: []
+        });
+      }
       bcrypt.compare(password, user.password)
       .then(doMatch =>{
         if(doMatch){
@@ -111,9 +126,9 @@ exports.postLogin = (req, res, next) => {
         console.log(err);
         res.redirect('/login');
       })
-    })
-    .catch(err => console.log(err));
+    }).catch(err => next(err));
 };
+
 
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
@@ -121,6 +136,7 @@ exports.postSignup = (req, res, next) => {
   const password = req.body.password;
   const errors = validationResult(req)
   if(!errors.isEmpty()){
+    console.log("Errors found in validation")
     console.log(errors.array());
     return res.status(422).render('auth/signup', {
       path: '/signup',
@@ -133,13 +149,18 @@ exports.postSignup = (req, res, next) => {
       validationErrors: errors.array()
     });
   }
-
-  
+  crypto.randomBytes(32,(err,buffer) => {
+      if(err){
+        console.log(err)
+        return res.redirect('/singup')
+      }
+      token =  buffer.toString('hex')
     bcrypt.hash(password, 12).then(hashedPassword =>{
       const user = new User({
         email: email,
         password : hashedPassword,
-        cart: {items: []}
+        emailVeriificationToken: token,
+        emailVerificationTokenExpiration: Date.now() +(60*60*1000),
       })
       return user.save();
     })
@@ -148,19 +169,19 @@ exports.postSignup = (req, res, next) => {
       return transporter.sendMail({
         to: email,
         from: 'teokappa02@gmail.com',
-        subject: 'Signup succeeded',
-        html: '<h1> You successfully signed up!</h1>'
+        subject: 'Email Verification',
+        html: `<h1> Verify your email here </h1><br><p> Click this <a href="http://localhost:3002/verification/${token}/${email}">link</a> to verify your email<p>`
       })
     }).catch(err => {
-      console.log(err)
+      next(err);
     })
+  })
 
 };
 
 exports.postLogout = (req, res, next) => {
   req.session.destroy(err => {
     res.redirect('/')
-    console.log(err);
   });
 };
 
@@ -208,7 +229,7 @@ exports.postReset = (req,res,next)=>{
           subject: 'Password reset',
           html:  `
             <p> You requested a password reset <p>
-            <p> Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password <p>
+            <p> Click this <a href="http://localhost:3002/reset/${token}">link</a> to set a new password <p>
           `
         })
       })
@@ -217,19 +238,16 @@ exports.postReset = (req,res,next)=>{
       })
   })
 };
-
 exports.getResetPassword = (req,res,next)=>{
 
   const token = req.params.token;
 
   User.findOne({resetToken: token, resetTokenExpiration : {$gt:Date.now()}})
   .then(user => {
-
     var message = req.flash('error')
     if(message.length>0){
       message = message[0];
-    }else
-    {
+    }else{
       message = null;
     }
 
@@ -242,7 +260,7 @@ exports.getResetPassword = (req,res,next)=>{
     })
   })
   .catch(err =>{
-    console.log(err)
+    next(err);
   });
 }
 
@@ -264,9 +282,27 @@ exports.postResetPassword = (req,res,next) =>{
   }).then(result => {
     res.redirect('/login');
   })
-  .catch({
-
+  .catch(error=>{
+    next(error);
   })
 
 };
 
+exports.getVerification = (req,res,next) => {
+  const token = req.params.token;
+  const email = req.params.email;
+  console.log("Entered get verification")
+  User.findOne({email: email, emailVeriificationToken: token, emailVerificationTokenExpiration : {$gt:Date.now()}})
+  .then(user => {
+    user.active = true;
+    user.emailVeriificationToken = null;
+    user.emailVerificationTokenExpiration = undefined;
+    return user.save();
+  })
+  .then(result => {
+    res.redirect('/login');
+  })
+  .catch(err => {
+    next(err);
+  })
+}
