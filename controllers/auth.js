@@ -306,3 +306,12 @@ exports.getVerification = (req,res,next) => {
     next(err);
   })
 }
+
+
+exports.getAccount = (req, res, next) => {
+  res.render('auth/account', {
+    path: '/account',
+    pageTitle: 'Account',
+    user : req.user
+  });
+}

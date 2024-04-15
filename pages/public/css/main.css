@@ -2,7 +2,6 @@
 @import 'variables.css';
 
 * {
-  box-sizing: border-box;
 }
 
 body {
@@ -73,6 +72,14 @@ form {
   padding: 0;
 }
 
+.main-header__item img{
+  margin: 0;
+  display: block;
+  width: 2.7rem;
+  height: auto;
+  vertical-align: middle;
+}
+
 .main-header__item a,
 .main-header__item button {
   font: inherit;
@@ -84,6 +91,8 @@ form {
   cursor: pointer;
   transition: 0.3s;
   border-radius: 5px;
+  display: inline-block;
+  padding: 5px;
 }
 
 .main-header__item a:hover,
@@ -93,8 +102,7 @@ form {
 .main-header__item button:active {
   color: var(--dark);
   background-color: var(--light);
-  padding: 10px 20px;
-  height: 100%;
+  padding: 10px;
 }
 
 .grid {

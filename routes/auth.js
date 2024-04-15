@@ -3,6 +3,8 @@ const { check, body } = require('express-validator');
 const User = require('../models/user')
 const authController = require('../controllers/auth');
 
+const isAuth = require('../middleware/is-auth');
+
 const router = express.Router();
 
 router.get('/login', authController.getLogin);
@@ -33,8 +35,9 @@ router.post('/signup',[
 ], 
  authController.postSignup);
 
-router.post('/logout', authController.postLogout);
+router.post('/logout', isAuth, authController.postLogout);
 
+router.get('/account', isAuth, authController.getAccount);
 
 router.get('/reset',authController.getReset);
 router.post('/reset',authController.postReset);
