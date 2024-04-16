@@ -1,9 +1,9 @@
 <%- include('includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/product.css">
 </head>
 
 <body>
     <%- include('includes/navigation.ejs') %>
-
     <main>
         <section class="order-cookie">
             <h2 class="order-cookie__heading">
@@ -16,7 +16,20 @@
                 Only 45.212 left!
             </h2>
         </section>
-        <section class="products_preview">
+        <section class="products-preview">
+            <h2 style="text-align: center;">
+                Our Products
+            </h2>
+            <ul class="product-list">
+                <%for (let i=0; i<5; i++) {%>
+                <li class="product-list__item">
+                    <img  class="product-list__item__image" src="images/cookie.png" alt="Cookie">
+                    <h3 class="product-list__item__title">Cookie</h3>
+                    <p class="product-list__item__price">1.99</p>
+                </li>
+                <%}%>
+                
+            </ul>
         </section>
     </main>
 <%- include('includes/end.ejs') %>

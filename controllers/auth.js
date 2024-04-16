@@ -10,7 +10,7 @@ dotenv.config()
 
 const transporter = nodemailer.createTransport(sendgridTransport({
   auth: {
-    api_key: process.env.SenGrid
+    api_key: process.env.SENDGRID_API_KEY
   }
 }));
 
@@ -89,6 +89,24 @@ exports.postLogin = (req, res, next) => {
         });
       }
       if(!user.active){
+        if(Date.now() > user.emailVerificationTokenExpiration){
+          user.emailVeriificationToken = null;
+          user.emailVerificationTokenExpiration = undefined;
+          return user.save()
+          .then(result => {
+            return res.status(422).render('auth/login', {
+              path: '/login',
+              pageTitle: 'Login',
+              errorMessage: 'Invalid email or password.',
+              oldInput : {
+                email: email,
+                password: password
+              },
+              validationErrors: []
+            });
+          }).catch(err => next(err));
+
+        }
         return res.status(402).render('auth/login', {
           path: '/login',
           pageTitle: 'Login',
@@ -165,13 +183,13 @@ exports.postSignup = (req, res, next) => {
       return user.save();
     })
     .then(result => {
-      res.redirect('/login')
-      return transporter.sendMail({
+      transporter.sendMail({
         to: email,
         from: 'teokappa02@gmail.com',
         subject: 'Email Verification',
         html: `<h1> Verify your email here </h1><br><p> Click this <a href="http://localhost:3002/verification/${token}/${email}">link</a> to verify your email<p>`
       })
+      return res.redirect('/login')
     }).catch(err => {
       next(err);
     })
@@ -291,7 +309,6 @@ exports.postResetPassword = (req,res,next) =>{
 exports.getVerification = (req,res,next) => {
   const token = req.params.token;
   const email = req.params.email;
-  console.log("Entered get verification")
   User.findOne({email: email, emailVeriificationToken: token, emailVerificationTokenExpiration : {$gt:Date.now()}})
   .then(user => {
     user.active = true;

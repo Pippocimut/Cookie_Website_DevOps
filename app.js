@@ -59,6 +59,7 @@ app.use((req, res, next) => {
         return next();
       }
       req.user = user;
+      res.locals.isAdmin = user.role === 'admin';
       next();
     })
     .catch(err => {

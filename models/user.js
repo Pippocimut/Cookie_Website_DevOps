@@ -22,6 +22,10 @@ const userSchema = new Schema({
     default: null
   },
   emailVerificationTokenExpiration: Date,
+  role: {
+    type: String,
+    default: 'user'
+  }
 });
 
 module.exports = mongoose.model('User', userSchema);

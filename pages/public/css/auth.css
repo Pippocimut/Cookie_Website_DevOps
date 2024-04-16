@@ -17,6 +17,7 @@
   margin: auto;
   border: 1px solid var(--dark);
   border-radius: 3px;
+  padding: 20px;
 }
 .account-data__heading {
   text-align: center;

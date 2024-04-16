@@ -6,7 +6,7 @@
                 <a class="<%= path === '/' ? 'active' : '' %>" href="/">Shop</a>
             </li>
             
-            <% if (isAuthenticated) { %>
+            <% if (isAuthenticated && isAdmin) { %>
                 <li class="main-header__item">
                     <a class="<%= path === '/secret' ? 'active' : '' %>" href="/secret">Secret</a>
                 </li>

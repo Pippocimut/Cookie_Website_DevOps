@@ -25,3 +25,37 @@
 .product__description {
     text-align: center;
 }
+
+.products-preview{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.product-list{
+    margin: auto;
+    padding: 0;
+    width: 60%;
+    display: flex;
+    list-style-type: none;
+}
+.product-list__item{
+    width: 20%;
+    height: fit-content;
+    margin: 10px;
+    padding: 10px;
+}
+.product-list__item__image{
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+
+}
+.product-list__item__title{
+    text-align: center;
+    font-size: 1.2rem;
+    margin: 0.5rem;
+
+}
+.product-list__item__price{
+    text-align: center;
+}
