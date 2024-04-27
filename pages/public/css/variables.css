@@ -1,7 +1,9 @@
 :root {
-    --secondary: #436850;
-    --light: #FBFADA;
-    --dark: #12372A;
-    --error:#ff3209;;
-    --error_background:#ffdb80;
-  }
+  --secondary: #436850;
+  --light: #FBFADA;
+  --dark: #12372A;
+  --error:#ff3209;
+  --error_background:#ffdb80;
+}
+
+/*# sourceMappingURL=variables.css.map */

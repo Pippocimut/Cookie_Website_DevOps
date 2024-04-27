@@ -5,11 +5,11 @@ const express = require('express');
 const adminController = require('../controllers/admin');
 const isAuth = require('../middleware/is-auth');
 const { body } = require('express-validator')
-
+const isAdmin = require('../middleware/is-admin');
 const router = express.Router();
 
 // /admin/add-product => GET
-router.get('/add-product', isAuth, adminController.getAddProduct);
+router.get('/add-product',isAdmin, isAuth, adminController.getAddProduct);
 
 // /admin/products => GET
 router.get('/products',isAuth, adminController.getProducts);
@@ -21,7 +21,7 @@ router.post('/add-product',[
     body('description').trim().isLength({max:200})
 ], isAuth, adminController.postAddProduct);
 
-router.get('/edit-product/:productId', isAuth,adminController.getEditProduct);
+router.get('/edit-product/:productId', isAuth, adminController.getEditProduct);
 
 router.post('/edit-product',[
     body('title').isString().isLength({min:3}).trim(),

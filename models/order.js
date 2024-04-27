@@ -9,6 +9,18 @@ const orderSchema = new Schema({
       quantity: { type: Number, required: true }
     }
   ],
+  confirmation: {
+    type: Boolean,
+    default: false
+  },
+  date: {
+    type: Date,
+    default: Date.now
+  },
+  confirmationToken: {
+    type: String,
+    required: true
+  },
   user: {
     email: {
       type: String,

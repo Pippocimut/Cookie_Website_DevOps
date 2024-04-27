@@ -1,13 +1,16 @@
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
-@import 'variables.css';
-
-* {
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:400,700");
+:root {
+  --secondary: #436850;
+  --light: #FBFADA;
+  --dark: #12372A;
+  --error:#ff3209;
+  --error_background:#ffdb80;
 }
 
 body {
   padding: 0;
   margin: 0;
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }
 
 main {
@@ -23,31 +26,20 @@ form {
   text-align: center;
 }
 
-.image {
-  height: 20rem;
-}
-
-.image img {
-  height: 100%;
-}
-
 .main-header {
   width: 100%;
   height: 6rem;
   background-color: var(--dark);
-  padding: 0 1.5rem;
   display: flex;
   align-items: center;
 }
-
-.main-header__nav {
+.main-header nav {
   height: 100%;
   width: 100%;
   display: flex;
   align-items: center;
 }
-
-.main-header__item-list {
+.main-header nav .item-list, .main-header nav .login {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -57,31 +49,11 @@ form {
   width: fit-content;
   justify-content: space-between;
 }
-.main-header__item-list__login{
-  list-style: none;
-  margin: 0;
-  margin-right: 5%;
-  padding: 0;
-  display: flex;
-  margin-left: auto;
-  width: fit-content;
-}
-
-.main-header__item {
+.main-header nav .item-list .item, .main-header nav .login .item {
   margin: 0 1rem;
   padding: 0;
 }
-
-.main-header__item img{
-  margin: 0;
-  display: block;
-  width: 2.7rem;
-  height: auto;
-  vertical-align: middle;
-}
-
-.main-header__item a,
-.main-header__item button {
+.main-header nav .item-list .item a, .main-header nav .item-list .item button, .main-header nav .login .item a, .main-header nav .login .item button {
   font: inherit;
   font-size: 2rem;
   background: transparent;
@@ -94,15 +66,21 @@ form {
   display: inline-block;
   padding: 5px;
 }
-
-.main-header__item a:hover,
-.main-header__item a:active,
-.main-header__item a.active,
-.main-header__item button:hover,
-.main-header__item button:active {
+.main-header nav .item-list .item a:hover, .main-header nav .item-list .item a:active, .main-header nav .item-list .item a.active, .main-header nav .item-list .item button:hover, .main-header nav .item-list .item button:active, .main-header nav .item-list .item button.active, .main-header nav .login .item a:hover, .main-header nav .login .item a:active, .main-header nav .login .item a.active, .main-header nav .login .item button:hover, .main-header nav .login .item button:active, .main-header nav .login .item button.active {
   color: var(--dark);
   background-color: var(--light);
   padding: 10px;
+}
+.main-header nav .item-list .item a img, .main-header nav .item-list .item button img, .main-header nav .login .item a img, .main-header nav .login .item button img {
+  margin: 0;
+  display: block;
+  width: 2.7rem;
+  height: auto;
+  vertical-align: middle;
+}
+.main-header nav .login {
+  margin-right: 5%;
+  margin-left: auto;
 }
 
 .grid {
@@ -141,7 +119,7 @@ form {
   color: var(--dark);
 }
 
-.user-message--error{
+.user-message--error {
   text-align: center;
   border-color: var(--error);
   background: var(--error_background);
@@ -151,27 +129,28 @@ form {
   padding: 0.5rem;
 }
 
-.order-cookie{
+.order-cookie {
   margin: auto;
   width: fit-content;
 }
 
-.order-cookie__form{
-  margin:auto;
+.order-cookie__form {
+  margin: auto;
   height: fit-content;
   display: block;
 }
 
-.order-cookie__image{
+.order-cookie__image {
   object-fit: cover;
   display: block;
   margin: auto;
-
 }
 
-.order-cookie__heading{
+.order-cookie__heading {
   text-align: center;
   color: var(--dark);
   font-size: 2.5rem;
   width: 100%;
 }
+
+/*# sourceMappingURL=main.css.map */

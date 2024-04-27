@@ -8,19 +8,6 @@ const errorGet = (status_code,err)=>{
   return error;
 };
 
-function resStatus422(res, product, ){
-  return res.status(422).render('admin/edit-product', {
-    pageTitle: 'Add Product',
-    path: '/admin/add-product',
-    editing: false,
-    hasError: true,
-    product: product,
-    isAuthenticated: req.session.isLoggedIn,
-    errorMessage: errors.array()[0].msg,
-    validationErrors: errors.array()
-  });
-};
-
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
@@ -32,6 +19,7 @@ exports.getAddProduct = (req, res, next) => {
     validationErrors: []
   });
 };
+
 exports.postAddProduct = (req, res, next) => {
 
   const newProduct = {
@@ -39,11 +27,11 @@ exports.postAddProduct = (req, res, next) => {
     price : req.body.price,
     description: req.body.description
   }
-  const errors = validationResult(req)
+
   image = req.file
+  const errors = validationResult(req)
 
   if(!image){
-    console.log("Not an image")
     return res.status(422).render('admin/edit-product', {
       pageTitle: 'Add Product',
       path: '/admin/add-product',
@@ -51,14 +39,10 @@ exports.postAddProduct = (req, res, next) => {
       hasError: true,
       product: newProduct,
       isAuthenticated: req.session.isLoggedIn,
-      errorMessage: "Attached file is not an image",
+      errorMessage: "Attached file is not an image or is missing",
       validationErrors: errors.array()
     });
   }
-
-  const imageUrl = image.path;
-
-  newProduct.imageUrl = imageUrl;
 
   if(!errors.isEmpty()){
     console.log("Errors found")
@@ -73,22 +57,18 @@ exports.postAddProduct = (req, res, next) => {
       validationErrors: errors.array()
     });
   }
-
+  console.log(image)
   const product = new Product({
     ...newProduct,
+    imageUrl: image.location,
     userId: req.user
   });
 
-  console.log(product)
   product
     .save()
     .then(result => {
-      // console.log(result);
-      console.log('Created Product');
-      res.redirect('/admin/products');
-    })
-    .catch(err => {
-      console.log("Error", err)
+      res.redirect('/');
+    }).catch(err => {
       return next(errorGet(500,err))
     });
 };
@@ -101,6 +81,7 @@ exports.getEditProduct = (req, res, next) => {
   }
 
   const prodId = req.params.productId;
+
   Product.findById(prodId)
     .then(product => {
       if (!product) {
@@ -122,6 +103,7 @@ exports.getEditProduct = (req, res, next) => {
       return next(errorGet(500,err));
     });
 };
+
 exports.postEditProduct = (req, res, next) => {
 
   const prodId = req.body.productId;

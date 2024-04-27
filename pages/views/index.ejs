@@ -9,7 +9,7 @@
             <h2 class="order-cookie__heading">
                 A MILLION FREE COOKIES!
             </h2>
-            <form class="order-cookie__form">
+            <form class="order-cookie__form" action="/order-cookie" method="get">
                 <input class="order-cookie__image" type="image" src="images/cookie.png" width="300px" height="300px" alt="submit" >
             </form>
             <h2 class="order-cookie__heading">
@@ -17,19 +17,40 @@
             </h2>
         </section>
         <section class="products-preview">
-            <h2 style="text-align: center;">
+            <h2 style="text-align: center; width: 100%;">
                 Our Products
             </h2>
-            <ul class="product-list">
-                <%for (let i=0; i<5; i++) {%>
-                <li class="product-list__item">
-                    <img  class="product-list__item__image" src="images/cookie.png" alt="Cookie">
-                    <h3 class="product-list__item__title">Cookie</h3>
-                    <p class="product-list__item__price">1.99</p>
-                </li>
-                <%}%>
-                
-            </ul>
+            <% if (prods.length > 0) { %>
+                <div class="product-list">
+                    <% for (let product of prods) { %>
+                        <article class="product-item">
+                            <header class="header">
+                                <h1 class="title">
+                                    <%= product.title %>
+                                </h1>
+                            </header>
+                            <div class="image">
+                                <img width="50px" src="<%= product.imageUrl %>" alt="<%= product.title %>">
+                            </div>
+                            <div class="content">
+                                <h2 class="product__price">$
+                                    <%= product.price %>
+                                </h2>
+                                <p class="description">
+                                    <%= product.description %>
+                                </p>
+                            </div>
+                            <div class="actions">
+                                <a href="/products/<%= product._id %>" class="btn">Details</a>
+                            </div>
+                        </article>
+                        <% } %>
+                </div>
+                <% } else { %>
+                    <h2 style="text-align: center;">
+                        No products found.
+                    </h2>
+                    <% } %>
         </section>
     </main>
 <%- include('includes/end.ejs') %>
