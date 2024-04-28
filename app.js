@@ -6,49 +6,19 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const flash = require('connect-flash');
+
 const User = require('./models/user');
-const dotenv = require('dotenv')
-const aws = require('aws-sdk');
+
+const s3Helper = require('./util/file-storage');
 const multer = require('multer');
-const multerS3 = require('multer-s3');
+
+const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
+
+const dotenv = require('dotenv');
 
 dotenv.config()
 const app = express();
-
-aws.config.update({
-    secretAccessKey: process.env.SECRET_S3_ACCESS_KEY,
-    accessKeyId: process.env.S3_ACCESS_KEY,
-    region: process.env.REGION
-});
-
-const s3 = new aws.S3();
-
-const fileStorage = multerS3({
-        s3: s3,
-        bucket: process.env.BUCKET_NAME,
-        acl: 'public-read',
-        metadata: function (req, file, cb) {
-            cb(null, {fieldName: file.fieldname});
-        },
-        key: function (req, file, cb) {
-            cb(null, Date.now().toString()+file.originalname)
-        }
-    });
-
-//Storing the session in the database
-const store = new MongoDBStore({
-  uri: process.env.MONGODB_URI,
-  collection: 'sessions'
-});
-
-/* const fileStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'images');
-  },
-  filename: (req, file, cb) => {
-    cb(null, new Date().toISOString().replace(/:/g, '-') + '-' + file.originalname);
-  }
-}); */
 
 const fileFilter = (req, file, cb) => {
   if (
@@ -63,8 +33,13 @@ const fileFilter = (req, file, cb) => {
 };
 
 app.use(
-  multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+  multer({ storage: s3Helper.getImageFileStorage(), fileFilter: fileFilter }).single('image')
 );
+
+const store = new MongoDBStore({
+  uri: process.env.MONGODB_URI,
+  collection: 'sessions'
+});
 
 app.use(
   session({
@@ -78,9 +53,6 @@ app.use(
 app.set('view engine', 'ejs');
 app.set('views', 'pages/views');
 
-const shopRoutes = require('./routes/shop');
-const authRoutes = require('./routes/auth');
-
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'pages/public')));
 app.use('/images',express.static(process.env.IMAGE_URL));
@@ -88,8 +60,12 @@ app.use('/images',express.static(process.env.IMAGE_URL));
 app.use(cookieParser())
 app.use(flash());
 
+//All local variables setting up
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.hasError = false,
+  res.locals.errorMessage = null,
+  res.locals.validationErrors = []
   next();
 });
 
@@ -119,8 +95,7 @@ app.use(authRoutes);
 app.use((req, res, next) => {
   res.status(404).render('404', {
     pageTitle: 'Page Not Found',
-    path: '/404',
-    isAuthenticated: req.session.isLoggedIn
+    path: '/404'
   });
 });
 

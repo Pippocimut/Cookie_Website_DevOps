@@ -1,78 +1,28 @@
 const Product = require('../models/product');
 const {validationResult} = require('express-validator')
 const fileHelper = require('../util/file')
+
 const errorGet = (status_code,err)=>{
   console.log("Error from ErrorGet function")
   const error = new Error(err);
   error.httpStatusCode = status_code;
   return error;
 };
+const errorLocals = (errors) =>{
+  return {
+    hasError : true,
+    errorMessage : errors.array()[0].msg,
+    validationErrors : errors.array()
+  }
+}
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
     editing: false,
-    hasError: false,
-    isAuthenticated: req.session.isLoggedIn,
-    errorMessage: null,
-    validationErrors: []
   });
 };
-
-exports.postAddProduct = (req, res, next) => {
-
-  const newProduct = {
-    title : req.body.title,
-    price : req.body.price,
-    description: req.body.description
-  }
-
-  image = req.file
-  const errors = validationResult(req)
-
-  if(!image){
-    return res.status(422).render('admin/edit-product', {
-      pageTitle: 'Add Product',
-      path: '/admin/add-product',
-      editing: false,
-      hasError: true,
-      product: newProduct,
-      isAuthenticated: req.session.isLoggedIn,
-      errorMessage: "Attached file is not an image or is missing",
-      validationErrors: errors.array()
-    });
-  }
-
-  if(!errors.isEmpty()){
-    console.log("Errors found")
-    return res.status(422).render('admin/edit-product', {
-      pageTitle: 'Add Product',
-      path: '/admin/add-product',
-      editing: false,
-      hasError: true,
-      product: newProduct,
-      isAuthenticated: req.session.isLoggedIn,
-      errorMessage: errors.array()[0].msg,
-      validationErrors: errors.array()
-    });
-  }
-  console.log(image)
-  const product = new Product({
-    ...newProduct,
-    imageUrl: image.location,
-    userId: req.user
-  });
-
-  product
-    .save()
-    .then(result => {
-      res.redirect('/');
-    }).catch(err => {
-      return next(errorGet(500,err))
-    });
-};
-
 exports.getEditProduct = (req, res, next) => {
 
   const editMode = req.query.edit;
@@ -92,10 +42,6 @@ exports.getEditProduct = (req, res, next) => {
         path: '/admin/edit-product',
         editing: editMode,
         product: product,
-        hasError: false,
-        isAuthenticated: req.session.isLoggedIn,
-        errorMessage: null,
-        validationErrors: []
       });
     })
     .catch(err =>{
@@ -103,7 +49,15 @@ exports.getEditProduct = (req, res, next) => {
       return next(errorGet(500,err));
     });
 };
+exports.getProducts = async (req, res, next) => {
 
+  const products = await Product.find({userId : req.user._id})
+  res.render('admin/products', {
+    prods: products,
+    pageTitle: 'Admin Products',
+    path: '/admin/products',
+  });
+};
 exports.postEditProduct = (req, res, next) => {
 
   const prodId = req.body.productId;
@@ -118,16 +72,13 @@ exports.postEditProduct = (req, res, next) => {
       pageTitle: 'Edit Product',
       path: '/admin/edit-product',
       editing: true,
-      hasError: true,
       product: {
         title: updatedTitle,
         price: updatedPrice,
         description: updatedDesc,
         _id : prodId
       },
-      isAuthenticated: req.session.isLoggedIn,
-      errorMessage: errors.array()[0].msg,
-      validationErrors: errors.array()
+      ...errorLocals(errors)
     });
   }
   Product.findById(prodId)
@@ -154,21 +105,6 @@ exports.postEditProduct = (req, res, next) => {
       return next(errorGet(500,err))
     });
 };
-exports.getProducts = (req, res, next) => {
-  console.log(req.user._id)
-  Product.find({userId : req.user._id})
-    .then(products => {
-      console.log(req.user._id)
-      console.log(products);
-      res.render('admin/products', {
-        prods: products,
-        pageTitle: 'Admin Products',
-        path: '/admin/products',
-        isAuthenticated: req.session.isLoggedIn
-      });
-    })
-    .catch(err => next(errorGet(500,err)));
-};
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
   Product.findById(prodId)
@@ -179,31 +115,52 @@ exports.postDeleteProduct = (req, res, next) => {
     fileHelper.deleteFile(product.imageUrl);
     return Product.deleteOne({ _id:prodId, userId:req.user._id })
   }).then(() => {
-      console.log('DESTROYED PRODUCT');
       res.redirect('/admin/products');
     })
     .catch(err =>{return  next(errorGet(500,err))});
 };
+exports.postAddProduct = async (req, res, next) => {
 
+  const newProduct = {
+    title : req.body.title,
+    price : req.body.price,
+    description: req.body.description
+  }
 
-exports.deleteProduct = (req, res, next) => {
-  const prodId = req.params.productId;
-  Product.findById(prodId)
-  .then(product => {
-    if(!product){
-      return next(new Error('Product not found.'))
-    }
-    fileHelper.deleteFile(product.imageUrl);
-    return Product.deleteOne({ _id:prodId, userId:req.user._id })
-  }).then(() => {
-      console.log('DESTROYED PRODUCT');
-      res.status(200).json({
-        message: 'Success!'
-      });
-    })
-    .catch(err =>{
-      res.status(500).json({
-        message: 'Deleting product failed.'
-      });
+  image = req.file
+
+  const errors = validationResult(req)
+
+  if(!image){
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Add Product',
+      path: '/admin/add-product',
+      editing: false,
+      product: newProduct,
+      ...errorLocals(errors)
+    });
+  }
+
+  if(!errors.isEmpty()){
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Add Product',
+      path: '/admin/add-product',
+      editing: false,
+      product: newProduct,
+      ...errorLocals(errors)
+    });
+  }
+  console.log(image)
+  const product = new Product({
+    ...newProduct,
+    imageUrl: image.location,
+    userId: req.user
+  });
+
+  await product.save()
+    .then(result => {
+      res.redirect('/');
+    }).catch(err => {
+      return next(errorGet(500,err))
     });
 };
