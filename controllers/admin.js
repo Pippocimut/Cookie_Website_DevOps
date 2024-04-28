@@ -1,6 +1,6 @@
 const Product = require('../models/product');
 const {validationResult} = require('express-validator')
-const fileHelper = require('../util/file')
+const s3Helper = require('../util/file-storage')
 
 const errorGet = (status_code,err)=>{
   console.log("Error from ErrorGet function")
@@ -25,11 +25,12 @@ exports.getAddProduct = (req, res, next) => {
 };
 exports.getEditProduct = (req, res, next) => {
 
-  const editMode = req.query.edit;
+  //Not sure about this error handling, I'll have to check it out later
+  /* const editMode = req.query.edit;
   if (!editMode) {
     return res.redirect('/');
   }
-
+ */
   const prodId = req.params.productId;
 
   Product.findById(prodId)
@@ -40,12 +41,11 @@ exports.getEditProduct = (req, res, next) => {
       res.render('admin/edit-product', {
         pageTitle: 'Edit Product',
         path: '/admin/edit-product',
-        editing: editMode,
+        editing: true,//editMode,
         product: product,
       });
     })
     .catch(err =>{
-      console.log("Editing")
       return next(errorGet(500,err));
     });
 };
@@ -67,6 +67,7 @@ exports.postEditProduct = (req, res, next) => {
   const updatedDesc = req.body.description;
 
   const errors = validationResult(req)
+
   if(!errors.isEmpty()){
     return res.status(422).render('admin/edit-product', {
       pageTitle: 'Edit Product',
@@ -83,22 +84,21 @@ exports.postEditProduct = (req, res, next) => {
   }
   Product.findById(prodId)
     .then(product => {
-      console.log(product.userId.toString())
-      console.log(req.user._id.toString())
       if(product.userId.toString() !== req.user._id.toString()){
+        console.log("Looks like you are going to the shadow realm, Jimbo.")
         return res.redirect('/')
       }
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDesc;
+
       if(image){
-        fileHelper.deleteFile(product.imageUrl);
-        product.imageUrl = image.path
+        s3Helper.deleteImage(product.imageUrl);
+        product.imageUrl = image.location
       }
       
       return product.save().then(result => {
-        console.log('UPDATED PRODUCT!');
-        res.redirect('/admin/products');
+        res.redirect('/');
       })
     })
     .catch(err => {
@@ -112,7 +112,7 @@ exports.postDeleteProduct = (req, res, next) => {
     if(!product){
       return next(new Error('Product not found.'))
     }
-    fileHelper.deleteFile(product.imageUrl);
+    s3Helper.deleteImage(product.imageUrl);
     return Product.deleteOne({ _id:prodId, userId:req.user._id })
   }).then(() => {
       res.redirect('/admin/products');

@@ -32,8 +32,10 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+const imageStorage = s3Helper.getImageFileStorage();
+
 app.use(
-  multer({ storage: s3Helper.getImageFileStorage(), fileFilter: fileFilter }).single('image')
+  multer({ storage: imageStorage, fileFilter: fileFilter }).single('image')
 );
 
 const store = new MongoDBStore({
@@ -57,6 +59,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'pages/public')));
 app.use('/images',express.static(process.env.IMAGE_URL));
 
+//Not sure what this does, csrf protection and error displaying is something I'll do later
 app.use(cookieParser())
 app.use(flash());
 
@@ -69,6 +72,8 @@ app.use((req, res, next) => {
   next();
 });
 
+
+//Give request user data if user is logged in
 app.use((req, res, next) => {
   
   if (!req.session.user) {
@@ -88,6 +93,8 @@ app.use((req, res, next) => {
     });
 });
 
+
+//Routing section
 app.use(shopRoutes);
 app.use('/admin', require('./routes/admin'));
 app.use(authRoutes);
@@ -110,6 +117,8 @@ app.use((error, req, res, next) => {
   });
 });
 
+
+//Start server
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(result => {
