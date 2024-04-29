@@ -1,12 +1,14 @@
 const Product = require('../models/product');
 const User = require('../models/user');
 const Order = require('../models/order');
+
 const {sendEmail} = require('../util/email');
 const stripe = require('stripe')('sk_test_51OcPrdELAWo6mDK5AEObHxeowolmbMUbJRXDKsJCMArPtH5UOWWFQMpS6LezR5fh0So702dDUKu5ZzsXbxo8wk7m00mL8YtjHQ');
-const dotenv = require('dotenv');
+
 const bcrypt = require('bcryptjs')
 const crypto = require('crypto');
 
+const dotenv = require('dotenv');
 dotenv.config();
 
 exports.getIndex = (req, res, next) => {
@@ -151,7 +153,6 @@ exports.getCheckoutSuccess = (req, res, next) => {
 exports.getCheckoutCancel = (req, res, next) => {
 
 }
-
 exports.getOrderCookie = (req, res, next) => {
   res.render('shop/order-cookie', {
     pageTitle : 'Order Cookie',
