@@ -58,7 +58,7 @@ exports.getProducts = async (req, res, next) => {
     path: '/admin/products',
   });
 };
-exports.postEditProduct = (req, res, next) => {
+exports.postEditProduct = async (req, res, next) => {
 
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
@@ -82,42 +82,37 @@ exports.postEditProduct = (req, res, next) => {
       ...errorLocals(errors)
     });
   }
-  Product.findById(prodId)
-    .then(product => {
-      if(product.userId.toString() !== req.user._id.toString()){
-        console.log("Looks like you are going to the shadow realm, Jimbo.")
-        return res.redirect('/')
-      }
-      product.title = updatedTitle;
-      product.price = updatedPrice;
-      product.description = updatedDesc;
 
-      if(image){
-        s3Helper.deleteImage(product.imageUrl);
-        product.imageUrl = image.location
-      }
-      
-      return product.save().then(result => {
-        res.redirect('/');
-      })
-    })
-    .catch(err => {
-      return next(errorGet(500,err))
-    });
-};
-exports.postDeleteProduct = (req, res, next) => {
-  const prodId = req.body.productId;
-  Product.findById(prodId)
-  .then(product => {
-    if(!product){
-      return next(new Error('Product not found.'))
-    }
+  const product = await Product.findById(prodId)
+  if(product.userId.toString() !== req.user._id.toString()){
+    console.log("Looks like you are going to the shadow realm, Jimbo.")
+    return res.redirect('/')
+  }
+  product.title = updatedTitle;
+  product.price = updatedPrice;
+  product.description = updatedDesc;
+
+  if(image){
     s3Helper.deleteImage(product.imageUrl);
-    return Product.deleteOne({ _id:prodId, userId:req.user._id })
-  }).then(() => {
-      res.redirect('/admin/products');
-    })
-    .catch(err =>{return  next(errorGet(500,err))});
+    product.imageUrl = image.location
+  }
+
+  await product.save()
+
+  res.redirect('/');
+};
+exports.postDeleteProduct = async (req, res, next) => {
+  const prodId = req.body.productId;
+  const product = await Product.findById(prodId)
+
+  if(!product){
+    return next(new Error('Product not found.'))
+  }
+
+  s3Helper.deleteImage(product.imageUrl);
+  await Product.deleteOne({ _id:prodId, userId:req.user._id })
+
+  res.redirect('/admin/products');
 };
 exports.postAddProduct = async (req, res, next) => {
 
@@ -150,7 +145,7 @@ exports.postAddProduct = async (req, res, next) => {
       ...errorLocals(errors)
     });
   }
-  console.log(image)
+
   const product = new Product({
     ...newProduct,
     imageUrl: image.location,
@@ -158,9 +153,6 @@ exports.postAddProduct = async (req, res, next) => {
   });
 
   await product.save()
-    .then(result => {
-      res.redirect('/');
-    }).catch(err => {
-      return next(errorGet(500,err))
-    });
+  
+  res.redirect('/');
 };
