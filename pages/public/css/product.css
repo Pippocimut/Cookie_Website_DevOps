@@ -6,36 +6,54 @@
   --error_background:#ffdb80;
 }
 
-.product-form {
-  width: 20rem;
-  max-width: 90%;
-  margin: auto;
-  display: block;
-}
-
-.product-item {
-  width: 20rem;
+.product-item, .product-form {
+  width: fit-content;
   max-width: 95%;
+  height: fit-content;
   margin: 1rem;
   text-align: center;
-  border: 1px var(--dark) solid;
-  border-radius: 5%;
+  border: 5px var(--dark) solid;
+  border-radius: 15px;
+  padding: 1rem;
+  justify-content: center;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 1rem;
 }
-.product__title {
+.product-item .header, .product-form .header {
+  padding-top: 0.4rem;
+  padding-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+.product-item .header .title, .product-form .header .title {
   font-size: 1.2rem;
   text-align: center;
 }
-
-.product__price {
+.product-item .image img, .product-form .image img {
+  padding: 15px;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  margin: auto;
+}
+.product-item .content, .product-form .content {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+.product-item .content .price, .product-form .content .price {
   text-align: center;
-  color: #4d4d4d;
+  color: var(--dark);
+  width: fit-content;
+  margin: auto;
   margin-bottom: 0.5rem;
 }
-
-.product__description {
+.product-item .content .desctription, .product-form .content .desctription {
   text-align: center;
 }
-
 .products-preview {
   display: flex;
   flex-wrap: wrap;
@@ -71,6 +89,50 @@
 
 .product-list__item__price {
   text-align: center;
+}
+
+.product-form {
+  width: 20rem;
+  max-width: 90%;
+  margin: auto;
+}
+.product-form input, .product-form select, .product-form textarea {
+  border: 1px solid var(--dark);
+  border-radius: 5px;
+  text-align: center;
+  font-size: 1.2rem;
+}
+.product-form label {
+  font-size: 1.2rem;
+  padding: 5px;
+  width: fit-content;
+  margin: auto;
+}
+.product-form .form-control {
+  margin: 0.5rem 0;
+  display: block;
+  padding: 10px;
+}
+.product-form .header label {
+  font-size: 1.2rem;
+  padding: 5px;
+}
+.product-form .image img {
+  display: none;
+}
+.product-form .image input {
+  display: none;
+}
+.product-form .image label {
+  margin: auto;
+  width: fit-content;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid var(--dark);
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 /*# sourceMappingURL=product.css.map */

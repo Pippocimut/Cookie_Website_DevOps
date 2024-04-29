@@ -1,37 +1,57 @@
 @use 'variables';
 
-.product-form {
-    width: 20rem;
-    max-width: 90%;
-    margin: auto;
-    display: block;
-}
-
 .product-item {
-    width: 20rem;
+    width: fit-content;
     max-width: 95%;
+    height: fit-content;
     margin: 1rem;
     text-align: center;
-    border: 1px var(--dark) solid;
-    border-radius: 5%;
+    border: 5px var(--dark) solid;
+    border-radius: 15px;
+    padding: 1rem;
+    justify-content: center;
+    display : flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 1rem;
+
     .header{
+        padding-top : 0.4rem;
+        padding-bottom: 1rem;
+        display : flex;
+        flex-wrap: wrap;
+        flex-direction: column;
 
         .title{
-
+            font-size: 1.2rem;
+            text-align: center;
         }
     }
 
     .image{
-
+        img{
+            padding: 15px;
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            margin: auto;
+        }
     }
 
     .content{
+        display : flex;
+        flex-wrap: wrap;
+        flex-direction: column;
         .price{
-
+            text-align: center;
+            color: var(--dark);
+            width: fit-content;
+            margin: auto;
+            margin-bottom: 0.5rem;
         }
 
         .desctription{
-
+            text-align: center;
         }
     }
 
@@ -40,20 +60,6 @@
     }
 }
 
-.product__title {
-    font-size: 1.2rem;
-    text-align: center;
-}
-
-.product__price {
-    text-align: center;
-    color: #4d4d4d;
-    margin-bottom: 0.5rem;
-}
-
-.product__description {
-    text-align: center;
-}
 
 .products-preview{
     display: flex;
@@ -87,4 +93,55 @@
 }
 .product-list__item__price{
     text-align: center;
+}
+
+.product-form {
+    @extend .product-item;
+    width: 20rem;
+    max-width: 90%;
+    margin: auto;
+    input, select, textarea{
+        border: 1px solid var(--dark);
+        border-radius: 5px;
+        text-align: center;
+        font-size: 1.2rem;
+    }
+    label{
+        font-size: 1.2rem;
+        padding: 5px;
+        width: fit-content;
+        margin:auto;
+    }
+
+    .form-control{
+        margin: 0.5rem 0;
+        display: block;
+        padding: 10px;
+    }
+    .header{
+        label{
+            font-size: 1.2rem;
+            padding: 5px;
+        
+        }
+    }
+    .image{
+        img{
+            display: none;
+        }
+        input{
+            display: none;
+        }
+        label{
+            margin: auto;
+            width: fit-content;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid var(--dark);
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    }
 }

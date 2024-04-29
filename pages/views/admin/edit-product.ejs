@@ -11,21 +11,42 @@
             <div class="user-message user-message--error"><%= errorMessage %></div>
         <% } %>
         <form class="product-form" action="/admin/<% if (editing || hasError) { %>edit-product<% } else { %>add-product<% } %>" method="POST" enctype="multipart/form-data">
-            <div class="form-control">
+            <div class="header">
                 <label for="title">Title</label>
-                <input class="<%= validationErrors.find(e => e.param === 'title')? 'invalid':''%>"
+                <input class="title <%= validationErrors.find(e => e.param === 'title')? 'invalid':''%>"
                 type="text" name="title" id="title" value="<% if (editing|| hasError) { %><%= product.title %><% } %>">
             </div>
-            <div class="form-control">
+            <div class="image">
                 <label for="image">Image</label>
-                <input 
-                    type="file" 
-                    name="image" 
-                    id="image">
+                <input type="file" name="image" id="image">
+                <img src="" alt="Image place holder" id="outImage" class="image_display">
+                <script>
+                    document.getElementById('image').onchange = function (evt) {
+                        var tgt = evt.target || window.event.srcElement,
+                            files = tgt.files;
+                        
+                        // FileReader support
+                        if (FileReader && files && files.length) {
+                            var fr = new FileReader();
+                            fr.onload = function () {
+                                document.getElementById('outImage').src = fr.result;
+                                document.getElementById('outImage').style.display = 'block';
+                            }
+                            fr.readAsDataURL(files[0]);
+                        }
+                        
+                        // Not supported
+                        else {
+                            // fallback -- perhaps submit the input to an iframe and temporarily store
+                            // them on the server until the user's session ends.
+                        }
+                    }
+                </script>
             </div>
-            <div class="form-control">
+            
+            <div class="content">
                 <label for="price">Price</label>
-                <input class="<%= validationErrors.find(e => e.param === 'price')? 'invalid':''%>"
+                <input class="price <%= validationErrors.find(e => e.param === 'price')? 'invalid':''%>"
                 type="number" name="price" id="price" step="0.01" value="<% if (editing|| hasError) { %><%= product.price %><% } %>">
             </div>
             <div class="form-control">
