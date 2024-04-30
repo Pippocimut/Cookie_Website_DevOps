@@ -9,7 +9,7 @@
             <h2 class="order-cookie__heading">
                 A MILLION FREE COOKIES!
             </h2>
-            <form class="order-cookie__form" action="/order-cookie" method="get">
+            <form class="order-cookie__form" action="/checkout/662fb2071269656bf876deba" method="get">
                 <input class="order-cookie__image" type="image" src="images/cookie.png" width="300px" height="300px" alt="submit" >
             </form>
             <h2 class="order-cookie__heading">
@@ -42,6 +42,12 @@
                             </div>
                             <div class="actions">
                                 <a href="/products/<%= product._id %>" class="btn">Details</a>
+                                <% if (isAdmin){ %>
+                                    <form action="/admin/delete-product" method="POST">
+                                        <input type="hidden" name="productId" value="<%= product._id %>">
+                                        <button class="btn" type="submit">Delete</button>
+                                    </form>
+                                <% } %>
                             </div>
                         </article>
                         <% } %>

@@ -32,17 +32,19 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const imageStorage = s3Helper.getImageFileStorage();
+const imageStorage = s3Helper.getImageFileStorage()
 
-app.use(
-  multer({ storage: imageStorage, fileFilter: fileFilter }).single('image')
-);
+app.use(multer({ storage: imageStorage, fileFilter: fileFilter }).single('image'))
 
 const store = new MongoDBStore({
   uri: process.env.MONGODB_URI,
   collection: 'sessions'
 });
 
+app.use((req, res, next) => {
+  console.log(req.file)
+  next()
+})
 app.use(
   session({
     secret: 'my secret',
@@ -65,6 +67,7 @@ app.use(flash());
 
 //All local variables setting up
 app.use((req, res, next) => {
+  
   res.locals.isAuthenticated = req.session.isLoggedIn;
   res.locals.hasError = false,
   res.locals.errorMessage = null,
@@ -75,7 +78,7 @@ app.use((req, res, next) => {
 
 //Give request user data if user is logged in
 app.use((req, res, next) => {
-  
+  res.locals.isAdmin = false;
   if (!req.session.user) {
     return next();
   }
@@ -117,11 +120,12 @@ app.use((error, req, res, next) => {
   });
 });
 
-
+console.log("Trying to start server")
 //Start server
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, { useUnifiedTopology: true, useNewUrlParser: true })
   .then(result => {
+    console.log("Server started no issue")
     app.listen(process.env.PORT);
   })
   .catch(err => {

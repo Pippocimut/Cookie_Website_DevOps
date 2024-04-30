@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer')
+const path = require('path')
 const sendgridTransport = require('nodemailer-sendgrid-transport');
 const transporter = nodemailer.createTransport(sendgridTransport({
   auth: {
@@ -6,6 +7,7 @@ const transporter = nodemailer.createTransport(sendgridTransport({
   }
 }));
 
+const emailsPath = path.join(__dirname, '..', 'pages', 'email');
 const defaultEmail = "teokappa02@gmail.com"
 
 exports.sendEmail = (email, subject, message) => {

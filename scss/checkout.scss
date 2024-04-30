@@ -1,0 +1,30 @@
+.data-form{
+    margin:auto; 
+    width: 40%;
+    display: block;
+    text-align: right;
+    .form-group{
+        display: flex;
+        justify-content: space-between;
+        margin: 0;
+        width: 70%;
+    }
+    label{
+        vertical-align: middle;
+        display: flex;
+        align-items: center;
+    }
+
+    input{
+        width: 12rem;
+        margin: 10px 0;
+    }
+    .details{
+        margin-bottom : 20px;
+        .form-group{
+            vertical-align: middle;
+            margin: 0;
+        }
+    }
+}
+

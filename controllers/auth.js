@@ -5,8 +5,13 @@ const crypto = require('crypto');
 
 const {sendEmail} = require('../util/email');
 const { validationResult} = require('express-validator')
+const ejs = require('ejs');
+const path = require('path');
 
-const dotenv = require('dotenv')
+const emailsPath = path.join(__dirname, '..', 'pages', 'email');
+
+const dotenv = require('dotenv');
+const { send } = require('process');
 dotenv.config()
 
 exports.getLogin = (req, res, next) => {
@@ -189,6 +194,15 @@ exports.getVerification = async (req,res,next) => {
   user.emailVeriificationToken = null;
   user.emailVerificationTokenExpiration = undefined;
   await user.save();
+
+  sendEmail(
+    email,
+    'Email Verification',
+    await ejs.renderFile(path.join(emailsPath, "welcome-email.ejs"), {
+        userName: email
+      })
+    )
+
   res.redirect('/login');
 
 }

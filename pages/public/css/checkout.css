@@ -1,0 +1,30 @@
+.data-form {
+  margin: auto;
+  width: 40%;
+  display: block;
+  text-align: right;
+}
+.data-form .form-group {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  width: 70%;
+}
+.data-form label {
+  vertical-align: middle;
+  display: flex;
+  align-items: center;
+}
+.data-form input {
+  width: 12rem;
+  margin: 10px 0;
+}
+.data-form .details {
+  margin-bottom: 20px;
+}
+.data-form .details .form-group {
+  vertical-align: middle;
+  margin: 0;
+}
+
+/*# sourceMappingURL=checkout.css.map */

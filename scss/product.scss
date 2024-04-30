@@ -1,14 +1,21 @@
 @use 'variables';
 
-.product-item {
-    width: fit-content;
-    max-width: 95%;
-    height: fit-content;
-    margin: 1rem;
+h1{
     text-align: center;
+    color: var(--dark);
+    }
+.product-item {
+    width: 300px;
+    height: 600px;
+    max-width: 95%;
+    margin: auto;
+    padding: 1rem;
+    margin: 1rem;
+
     border: 5px var(--dark) solid;
     border-radius: 15px;
-    padding: 1rem;
+    
+    text-align: center;
     justify-content: center;
     display : flex;
     flex-wrap: wrap;
@@ -59,8 +66,6 @@
 
     }
 }
-
-
 .products-preview{
     display: flex;
     flex-wrap: wrap;
@@ -72,34 +77,13 @@
     width: 60%;
     display: flex;
     list-style-type: none;
+    flex-wrap: wrap;
+    justify-content: center;
 }
-.product-list__item{
-    width: 20%;
-    height: fit-content;
-    margin: 10px;
-    padding: 10px;
-}
-.product-list__item__image{
-    height: 100%;
-    width: 100%;
-    object-fit: contain;
-
-}
-.product-list__item__title{
-    text-align: center;
-    font-size: 1.2rem;
-    margin: 0.5rem;
-
-}
-.product-list__item__price{
-    text-align: center;
-}
-
 .product-form {
     @extend .product-item;
-    width: 20rem;
-    max-width: 90%;
-    margin: auto;
+    width: fit-content;
+    height: fit-content;
     input, select, textarea{
         border: 1px solid var(--dark);
         border-radius: 5px;
@@ -128,6 +112,7 @@
     .image{
         img{
             display: none;
+            max-width: 200px;
         }
         input{
             display: none;
@@ -142,6 +127,32 @@
             border: 2px solid var(--dark);
             border-radius: 5px;
             cursor: pointer;
+        }
+    }
+}
+
+.product-details{
+    display: flex;
+    justify-content: space-between;
+    margin: 0 20%;
+    h1{
+        text-align: center;
+    }
+
+    .product-item{
+        height: fit-content;
+    }
+    .product-actions{
+        height: fit-content;
+        margin: auto 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        flex-flow: column;
+        gap: 2rem;
+        button{
+            padding :10px;
+            width: 200px;
         }
     }
 }

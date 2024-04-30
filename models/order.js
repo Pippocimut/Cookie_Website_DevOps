@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const orderSchema = new Schema({
   products: [
     {
-      product: { type: Object, required: true },
+      productData: { type: Object, required: true },
       quantity: { type: Number, required: true }
     }
   ],
@@ -19,7 +19,11 @@ const orderSchema = new Schema({
   },
   confirmationToken: {
     type: String,
-    required: true
+    required: false
+  },
+  confirmationExpires: {
+    type: Date,
+    required: false
   },
   user: {
     email: {

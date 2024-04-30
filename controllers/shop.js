@@ -9,10 +9,12 @@ const bcrypt = require('bcryptjs')
 const crypto = require('crypto');
 
 const dotenv = require('dotenv');
+const order = require('../models/order');
+const { send } = require('process');
 dotenv.config();
 
 exports.getIndex = (req, res, next) => {
-  Product.find().limit(3)
+  Product.find().limit(5)
     .then(products => {
       res.render('index', {
         pageTitle : 'Shop',
@@ -107,45 +109,80 @@ exports.getCheckoutCart = async (req, res, next) => {
   const products = user.cart.items.map(i => {
     return { productData: i.productId, quantity: i.quantity };
   });
-  const order = new Order({
-    user: {
-      email: req.user.email,
-      userId: req.user
-    },
-    products: products
-  });
-  req.session.items = products;
-  const session = await setUpStripe(products);
+  let totalPrice = 0;
+  for (let i = 0; i < products.length; i++) {
+    totalPrice += products[i].productData.price * products[i].quantity;
+  }
+  
+  const order = await createOrder(req,products);
+
+  const session = await setUpStripe(products,order);
   console.log(session.id)
   res.render('shop/checkout', {
     pageTitle : 'Checkout Cart',
     path : '/checkout',
     products: products,
-    sessionId : session.id
+    sessionId : session.id,
+    totalPrice : totalPrice
   });
 }
 exports.getCheckoutProduct = async (req, res, next) => {
-  const prodId = req.body.productId;
- 
+
+  const prodId = req.params.prodId;
+
+  console.log(prodId)
   Product.findById(prodId)
     .then(product => {
-      
+      if(!product){
+        console.log("Where da hell is this cookie?")
+        return next(errorGet(404,"Product not found"));
+      }
+
       item = {productData:product,quantity:1};
-      req.session.items = [items];
-      return setUpStripe([item])})
-    .then(session => {
+
+      return createOrder(req,[item])}).then(order => {
+
+      return setUpStripe([item],order)
+    }).then(session => {
       res.render('shop/checkout', {
         pageTitle : 'Checkout Product',
         path : '/checkout',
         products: [item],
-        sessionId : session.id
+        sessionId : session.id,
+        totalPrice : item.productData.price
       });
     }) .catch(err => next(errorGet(500,err)));
 }
-exports.getCheckoutSuccess = (req, res, next) => {
+exports.getCheckoutSuccess = async (req, res, next) => {
 
+  const orderId = req.query.orderId;
+  const orderToken = req.query.orderToken;
+
+  const secret = "nobody knows the secret key but me"+orderId.toString();
+  const token = await bcrypt.hash(secret,12);
+  const order = await Order.findById({confirmationToken: orderToken,  confirmationExpires : {$gt:Date.now()}, _id :orderId})
+
+  if(!order){
+    return next(errorGet(404,"Order not found"));
+  }
+
+  order.confirmation = true;
+  order.confirmationToken = null;
+  order.confirmationExpires = undefined;
+  await order.save();
+
+  sendEmail(
+    order.user.email,
+    'Order Confirmation',
+    `You have successfully ordered ${order.products.length} products.`
+  )
+
+  sendEmail(
+    'teokappa02@gmail.com',
+    'Order Confirmation',
+    `Orders have been successfully made.`
+  )
   req.user.cart = {items:[]};
-  req.session.items = {items:[]};
 
   req.user.save().then(result => {
     res.redirect('/');}).catch(err => next(errorGet(500,err)));
@@ -153,26 +190,19 @@ exports.getCheckoutSuccess = (req, res, next) => {
 exports.getCheckoutCancel = (req, res, next) => {
 
 }
-exports.getOrderCookie = (req, res, next) => {
-  res.render('shop/order-cookie', {
-    pageTitle : 'Order Cookie',
-    path : '/order-cookie'
+
+exports.getContact = (req, res, next) => {
+  res.render('contact', {
+    pageTitle : 'Contact',
+    path : '/contact'
   });
 }
-exports.postOrderCookie = (req, res, next) => {
-  const cookieName = req.body.cookieName;
-  const cookieAmount = req.body.cookieAmount;
-  const cookiePrice = req.body.cookiePrice;
+exports.getProducts = (req, res, next) => {
 
-  const cookieOrder = {
-    cookieName : cookieName,
-    cookieAmount : cookieAmount,
-    cookiePrice : cookiePrice
-  };
-
-  sendOrder(cookieOrder);
-  res.redirect('/');
 }
+
+
+
 function sendOrder (cookieOrder){
   cookieOrder.cookieAddress = "1234 Fake Street";
   sendEmail(
@@ -181,7 +211,7 @@ function sendOrder (cookieOrder){
     `You have successfully ordered ${cookieOrder.cookieAmount} ${cookieOrder.cookieName} cookies. The total price is ${cookieOrder.cookiePrice} at address ${cookieOrder.cookieAddress}`
   )
 }
-async function setUpStripe(items){
+async function setUpStripe(items,order){
 
   const lineItems = items.map(item => {
     return {
@@ -191,7 +221,7 @@ async function setUpStripe(items){
           name: item.productData.title,
           description: item.productData.description
         },
-        unit_amount: 0
+        unit_amount: 0 //item.productData.price
       },
       quantity: item.quantity
     };
@@ -201,8 +231,8 @@ async function setUpStripe(items){
     payment_method_types: ['card'],
     line_items: lineItems,
     mode: 'payment',
-    success_url: process.env.SERVER_URL+'/checkout/success',//?orderId='+orderId,
-    cancel_url: process.env.SERVER_URL+'/checkout/failed',
+    success_url: process.env.SERVER_URL+'/checkout/success?orderId='+order._id+'&orderToken='+order.confirmationToken,
+    cancel_url: process.env.SERVER_URL+'/checkout/failed?orderId='+order._id,
   });
 }
 const errorGet = (status_code,err)=>{
@@ -211,3 +241,22 @@ const errorGet = (status_code,err)=>{
   error.httpStatusCode = status_code;
   return error;
 };
+async function createOrder(req,products){
+  const order = new Order({
+    user: {
+      email: req.user.email,
+      userId: req.user
+    },
+    products: products
+  });
+
+  const secret = "nobody knows the secret key but me"+order._id.toString();
+  const token = await bcrypt.hash(secret,12);
+  console.log("Secret1",secret)
+  order.confirmationToken = token;
+  order.confirmationExpires = Date.now() + 3600000;//1 hour
+
+  await order.save()
+
+  return order;
+}

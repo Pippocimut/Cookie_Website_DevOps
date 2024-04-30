@@ -9,10 +9,17 @@ const errorGet = (status_code,err)=>{
   return error;
 };
 const errorLocals = (errors) =>{
+  if(!errors.isEmpty())
   return {
     hasError : true,
     errorMessage : errors.array()[0].msg,
     validationErrors : errors.array()
+  }
+  else 
+  return {
+    hasError : false,
+    errorMessage : null,
+    validationErrors : []
   }
 }
 
@@ -127,6 +134,7 @@ exports.postAddProduct = async (req, res, next) => {
   const errors = validationResult(req)
 
   if(!image){
+
     return res.status(422).render('admin/edit-product', {
       pageTitle: 'Add Product',
       path: '/admin/add-product',
@@ -137,6 +145,7 @@ exports.postAddProduct = async (req, res, next) => {
   }
 
   if(!errors.isEmpty()){
+    console.log(errors.array())
     return res.status(422).render('admin/edit-product', {
       pageTitle: 'Add Product',
       path: '/admin/add-product',
@@ -156,3 +165,17 @@ exports.postAddProduct = async (req, res, next) => {
   
   res.redirect('/');
 };
+exports.postDeleteProduct = async (req, res, next) => {
+  const prodId = req.body.productId;
+  const product = await Product.findById(prodId)
+  if(!product){
+    return next(new Error('Product not found.'))
+  }
+  if(await s3Helper.deleteImage(product.imageUrl)){
+    await Product.deleteOne({ _id:prodId, userId:req.user._id })
+    res.redirect('/');
+  }
+  else{
+    return next(new Error('Could not delete product.'))
+  }
+}

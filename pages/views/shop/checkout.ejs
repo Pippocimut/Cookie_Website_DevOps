@@ -1,6 +1,9 @@
 <%- include('../includes/head.ejs') %>
     <link rel="stylesheet" href="/css/cart.css">
-    
+    <link rel="stylesheet" href="/css/checkout.css">
+    <title>Place Autocomplete</title>
+
+
     </head>
 
     <body>
@@ -14,17 +17,30 @@
                     </li>
                 <% }) %>
             </ul>
-            <form action="/payment" method="POST" style="margin:auto; width: 40%;display: block;text-align: center;">
-                <input type="hidden" value=>
-                <h2>Only deliveries in the London Area</h2>
+            <form class="data-form" action="/payment" method="POST" style="margin:auto; width: 40%;display: block;text-align: center;">
+
+              <h2>Only deliveries in the London Area</h2>
+              <div class="details">
                 <div class="form-group">
                   <label for="firstName">First Name:</label>
                   <input type="text" id="firstName" name="firstName" required>
                 </div>
                 <div class="form-group">
-                  <label for="lastName">Last Name:</label>
-                  <input type="text" id="lastName" name="lastName" required>
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" name="lastName" required>
                 </div>
+              </div>
+              <input type="text" id="autocomplete">
+              <input type="button" id="autocomplete_button">
+              <script>
+                document.getElementById("autocomplete_button").addEventListener("click", function() {
+                  var address = document.getElementById("autocomplete").value;
+                  fetch("https://api.geoapify.com/v1/geocode/search?text="+address+"&format=json&apiKey=31c6ab9e2abb4c38912cab2bdb446c74").then(response => response.json()).then(data => {
+                    console.log(data)
+                  })  
+                })
+              </script>
+              <div class="address">
                 <div class="form-group">
                   <label for="address1">Address Line 1:</label>
                   <input type="text" id="address1" name="address1" required>
@@ -45,10 +61,12 @@
                   <label for="country">Country:</label>
                   <input type="text" id="country" name="country" required>
                 </div>
-                <button type="submit">Submit</button>
-              </form>
+                </div>
+              </div>
+              <button type="button">Submit</button>
+            </form>
               <div class="centered" style="width: 100%;">
-                <h2>Total: £<%= 45//totalSum %></h2>
+                <h2>Total: £<%= totalPrice %></h2>
                 <div class="centered">
                     <button id="order-btn" class="button"> ORDER </button>
                     <script src="https://js.stripe.com/v3/"></script>
