@@ -14,7 +14,6 @@ router.use((req, res, next) => {
   });
 
 router.get('/login', authController.getLogin);
-
 router.get('/signup', authController.getSignup);
 
 router.post('/login',
@@ -38,17 +37,18 @@ router.post('/signup',[
             throw Error('Password need to match')
         return true
     })
-], 
- authController.postSignup);
+], authController.postSignup);
+router.get('/verification/:token/:email', authController.getVerification);
 
 router.post('/logout', isAuth, authController.postLogout);
-
 router.get('/account', isAuth, authController.getAccount);
 
 router.get('/reset',authController.getReset);
 router.post('/reset',authController.postReset);
 router.get('/reset/:token', authController.getResetPassword);
-router.get('/verification/:token/:email', authController.getVerification);
 router.post('/new-password',authController.postResetPassword)
+
+
+
 
 module.exports = router;

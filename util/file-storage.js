@@ -69,11 +69,9 @@ exports.deleteImage = async (filePath) => {
         const command = new DeleteObjectCommand(deleteParams);
     
         try {
-            const data = await s3.send(command);
-            console.log("Success, image deleted", data);
+            await s3.send(command);
             return true
         } catch (err) {
-            console.log("Error", err);
             return false
         }
     }

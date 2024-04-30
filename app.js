@@ -40,11 +40,6 @@ const store = new MongoDBStore({
   uri: process.env.MONGODB_URI,
   collection: 'sessions'
 });
-
-app.use((req, res, next) => {
-  console.log(req.file)
-  next()
-})
 app.use(
   session({
     secret: 'my secret',

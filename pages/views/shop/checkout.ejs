@@ -35,7 +35,7 @@
               <script>
                 document.getElementById("autocomplete_button").addEventListener("click", function() {
                   var address = document.getElementById("autocomplete").value;
-                  fetch("https://api.geoapify.com/v1/geocode/search?text="+address+"&format=json&apiKey=31c6ab9e2abb4c38912cab2bdb446c74").then(response => response.json()).then(data => {
+                  fetch("https://api.geoapify.com/v1/geocode/search?text="+address+"&format=json&apiKey=<%= geoAPIKey %>").then(response => response.json()).then(data => {
                     console.log(data)
                   })  
                 })
@@ -71,7 +71,7 @@
                     <button id="order-btn" class="button"> ORDER </button>
                     <script src="https://js.stripe.com/v3/"></script>
                     <script>
-                        var stripe = Stripe('pk_test_51OcPrdELAWo6mDK5y3oy60EGccqspk88QtVE1bNhvPxd8Pi7SPNBGSvfNd6C2EtIWGRD9tS4lRlGsxpxXbM2YEzv00JWi44Cd4');
+                        var stripe = Stripe("<%=StripePublishableKey%>");
                         var orderBtn = document.getElementById('order-btn')
                         orderBtn.addEventListener('click', function() {
                             stripe.redirectToCheckout({

@@ -27,7 +27,6 @@ module.exports = ((req,res,next) => {
     })
     .then(products => {
         res.locals.products = products
-        console.log(res.locals.products)
         res.locals.pagination = paginationFunction(res.locals.totalItems,page)
         return next()
     }).catch( err => {

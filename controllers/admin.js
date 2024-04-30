@@ -3,7 +3,6 @@ const {validationResult} = require('express-validator')
 const s3Helper = require('../util/file-storage')
 
 const errorGet = (status_code,err)=>{
-  console.log("Error from ErrorGet function")
   const error = new Error(err);
   error.httpStatusCode = status_code;
   return error;
@@ -92,7 +91,6 @@ exports.postEditProduct = async (req, res, next) => {
 
   const product = await Product.findById(prodId)
   if(product.userId.toString() !== req.user._id.toString()){
-    console.log("Looks like you are going to the shadow realm, Jimbo.")
     return res.redirect('/')
   }
   product.title = updatedTitle;
@@ -145,7 +143,6 @@ exports.postAddProduct = async (req, res, next) => {
   }
 
   if(!errors.isEmpty()){
-    console.log(errors.array())
     return res.status(422).render('admin/edit-product', {
       pageTitle: 'Add Product',
       path: '/admin/add-product',

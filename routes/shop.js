@@ -1,5 +1,3 @@
-const path = require('path');
-
 const express = require('express');
 
 const shopController = require('../controllers/shop');
@@ -12,10 +10,13 @@ router.get('/', shopController.getIndex);
 
 router.get('/secret', isAuth, isAdmin, shopController.getSecret);
 router.get('/contact', shopController.getContact);
+
 router.get('/products', shopController.getProducts);
 router.get('/products/:id', shopController.getProductDetails);
+
 router.post('/cart', isAuth, shopController.postAddToCart);
 router.get('/cart', isAuth, shopController.getCart);
+
 router.post('/cart-delete-item', shopController.deleteCartItem);
 
 router.get('/checkout/cart', shopController.getCheckoutCart);

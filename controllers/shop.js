@@ -11,7 +11,11 @@ const crypto = require('crypto');
 const dotenv = require('dotenv');
 const order = require('../models/order');
 const { send } = require('process');
+const { default: Stripe } = require('stripe');
 dotenv.config();
+
+const geo_key = process.env.GEO_API_KEY;
+
 
 exports.getIndex = (req, res, next) => {
   Product.find().limit(5)
@@ -40,7 +44,6 @@ exports.getCart = async (req, res, next) => {
     const products = user.cart.items.map(i => {
       return { productData: i.productId, quantity: i.quantity };
     });
-    console.log(products);
   res.render('shop/cart', {
     pageTitle : 'Your Cart',
     path : '/cart',
@@ -117,24 +120,23 @@ exports.getCheckoutCart = async (req, res, next) => {
   const order = await createOrder(req,products);
 
   const session = await setUpStripe(products,order);
-  console.log(session.id)
   res.render('shop/checkout', {
     pageTitle : 'Checkout Cart',
     path : '/checkout',
     products: products,
     sessionId : session.id,
-    totalPrice : totalPrice
+    totalPrice : totalPrice,
+    geoAPIKey : geo_key,
+    StripePublishableKey : process.env.STRIPE_PUBLIC_API_KEY
   });
 }
 exports.getCheckoutProduct = async (req, res, next) => {
 
   const prodId = req.params.prodId;
 
-  console.log(prodId)
   Product.findById(prodId)
     .then(product => {
       if(!product){
-        console.log("Where da hell is this cookie?")
         return next(errorGet(404,"Product not found"));
       }
 
@@ -149,7 +151,9 @@ exports.getCheckoutProduct = async (req, res, next) => {
         path : '/checkout',
         products: [item],
         sessionId : session.id,
-        totalPrice : item.productData.price
+        totalPrice : item.productData.price,
+        geoAPIKey : geo_key,
+        StripePublishableKey : process.env.STRIPE_PUBLIC_API_KEY
       });
     }) .catch(err => next(errorGet(500,err)));
 }
@@ -236,7 +240,6 @@ async function setUpStripe(items,order){
   });
 }
 const errorGet = (status_code,err)=>{
-  console.log("Error from ErrorGet function")
   const error = new Error(err);
   error.httpStatusCode = status_code;
   return error;
@@ -252,7 +255,6 @@ async function createOrder(req,products){
 
   const secret = "nobody knows the secret key but me"+order._id.toString();
   const token = await bcrypt.hash(secret,12);
-  console.log("Secret1",secret)
   order.confirmationToken = token;
   order.confirmationExpires = Date.now() + 3600000;//1 hour
 
