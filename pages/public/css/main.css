@@ -26,6 +26,12 @@ form {
   text-align: center;
 }
 
+.pagination {
+  margin: auto;
+  display: flex;
+  justify-content: center;
+}
+
 .main-header {
   width: 100%;
   height: 6rem;

@@ -9,8 +9,31 @@
                 <ul class="cart__item-list">
                     <% products.forEach(p => { %>
                         <li class="cart__item">
-                            <h1><%= p.productData.title %></h1>
-                            <h2>Quantity: <%= p.quantity %></h2>
+                            <h2><%= p.productData.title %></h2>
+                            <div class="quantity">
+                                <p>Quantity: </p>
+                                <input type="number" value="<%= p.quantity %>">
+                                <script>
+                                    document.querySelector('.quantity input').addEventListener('change', event => {
+                                        fetch('http://localhost:3002/cart-update-quanity', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({
+                                                productId: '<%= p.productData._id %>',
+                                                quantity: event.target.value
+                                            })
+                                        }).then(result => {
+                                            return result.json();
+                                        }).then(data => {
+                                            console.log(data);
+                                        }).catch(err => {
+                                            console.log(err);
+                                        })
+                                    })
+                                </script>
+                            </div>
                             <form action="/cart-delete-item" method="POST">
                                 <input type="hidden" value="<%= p.productData._id %>" name="productId">
                                 <button class="btn danger" type="submit">Delete</button>

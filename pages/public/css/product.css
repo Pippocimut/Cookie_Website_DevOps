@@ -64,6 +64,7 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  flex-flow: column;
 }
 
 .product-list {
@@ -74,6 +75,7 @@ h1 {
   list-style-type: none;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
 }
 
 .product-form {

@@ -7,5 +7,6 @@ module.exports = ((req,res,next) => {
             isAuthenticated: req.session.isLoggedIn
           });
     }
+    console.log("Admin authorized")
     next();
 });

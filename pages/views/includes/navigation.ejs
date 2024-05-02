@@ -6,12 +6,15 @@
                 <a class="<%= path === '/' ? 'active' : '' %>" href="/">Shop</a>
             </li>
             <li class="item">
+                <a class="<%= path === '/products' ? 'active' : '' %>" href="/products">Products</a>
+            </li>
+            <li class="item">
                 <a class="<%= path === '/contact' ? 'active' : '' %>" href="/contact">Contacts</a>
             </li>
             <% if (isAuthenticated && isAdmin) { %>
-                <li class="item">
+                <!-- <li class="item">
                     <a class="<%= path === '/secret' ? 'active' : '' %>" href="/secret">Secret</a>
-                </li>
+                </li> -->
                 <li class="item">
                     <a class="<%= path === '/admin/add-product' ? 'active' : '' %>" href="/admin/add-product">Add product</a>
                 </li>

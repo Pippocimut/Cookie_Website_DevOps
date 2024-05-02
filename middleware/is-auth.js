@@ -6,5 +6,6 @@ module.exports = ((req,res,next) => {
             isAuthenticated: req.session.isLoggedIn
           });
     }
+    console.log("Authorized")
     next();
 });

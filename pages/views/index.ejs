@@ -20,38 +20,13 @@
             <h2 style="text-align: center; width: 100%;">
                 Our Products
             </h2>
-            <% if (prods.length > 0) { %>
+            <% if (products.length > 0) { %>
                 <div class="product-list">
-                    <% for (let product of prods) { %>
-                        <article class="product-item">
-                            <header class="header">
-                                <h1 class="title">
-                                    <%= product.title %>
-                                </h1>
-                            </header>
-                            <div class="image">
-                                <img width="50px" src="<%= product.imageUrl %>" alt="<%= product.title %>">
-                            </div>
-                            <div class="content">
-                                <h2 class="product__price">$
-                                    <%= product.price %>
-                                </h2>
-                                <p class="description">
-                                    <%= product.description %>
-                                </p>
-                            </div>
-                            <div class="actions">
-                                <a href="/products/<%= product._id %>" class="btn">Details</a>
-                                <% if (isAdmin){ %>
-                                    <form action="/admin/delete-product" method="POST">
-                                        <input type="hidden" name="productId" value="<%= product._id %>">
-                                        <button class="btn" type="submit">Delete</button>
-                                    </form>
-                                <% } %>
-                            </div>
-                        </article>
-                        <% } %>
+                    <% for (let product of products) { %>
+                        <%- include('includes/product-card.ejs', {product: product}) %>
+                    <% } %>
                 </div>
+                <%- include('includes/pagination.ejs', {pagination: pagination}) %>
                 <% } else { %>
                     <h2 style="text-align: center;">
                         No products found.

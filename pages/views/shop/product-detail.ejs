@@ -18,6 +18,15 @@
                     <% if(isAuthenticated) {%>
                         <%- include('../includes/add-to-cart.ejs') %>
                         <%- include('../includes/buy-now.ejs') %>
+                        <%if (isAdmin) {%>
+                            <form action="/admin/delete-product" method="POST">
+                                <input type="hidden" name="productId" value="<%= product._id %>">
+                                <button class="btn" type="submit">Delete</button>
+                            </form>
+                            <form action="/admin/edit-product/<%= product._id %>" method="GET">
+                                <button class="btn" type="submit">Edit</button>
+                            </form>
+                        <%}%>
                     <%} else {%>
                         <p>Please <a href="/login">login</a> to buy this product</p>
                     <%}%>

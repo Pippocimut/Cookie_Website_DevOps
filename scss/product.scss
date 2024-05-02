@@ -70,6 +70,7 @@ h1{
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    flex-flow: column;
 }
 .product-list{
     margin: auto;
@@ -79,6 +80,7 @@ h1{
     list-style-type: none;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
 }
 .product-form {
     @extend .product-item;

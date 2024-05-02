@@ -106,18 +106,18 @@ exports.postEditProduct = async (req, res, next) => {
 
   res.redirect('/');
 };
+
 exports.postDeleteProduct = async (req, res, next) => {
+
   const prodId = req.body.productId;
   const product = await Product.findById(prodId)
-
   if(!product){
     return next(new Error('Product not found.'))
   }
-
   s3Helper.deleteImage(product.imageUrl);
-  await Product.deleteOne({ _id:prodId, userId:req.user._id })
-
-  res.redirect('/admin/products');
+  await Product.deleteOne({ _id:prodId})
+  res.redirect('/');
+  
 };
 exports.postAddProduct = async (req, res, next) => {
 
@@ -162,17 +162,3 @@ exports.postAddProduct = async (req, res, next) => {
   
   res.redirect('/');
 };
-exports.postDeleteProduct = async (req, res, next) => {
-  const prodId = req.body.productId;
-  const product = await Product.findById(prodId)
-  if(!product){
-    return next(new Error('Product not found.'))
-  }
-  if(await s3Helper.deleteImage(product.imageUrl)){
-    await Product.deleteOne({ _id:prodId, userId:req.user._id })
-    res.redirect('/');
-  }
-  else{
-    return next(new Error('Could not delete product.'))
-  }
-}

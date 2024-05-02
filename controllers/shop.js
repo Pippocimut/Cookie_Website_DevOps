@@ -10,7 +10,7 @@ const crypto = require('crypto');
 
 const dotenv = require('dotenv');
 const order = require('../models/order');
-const { send } = require('process');
+const { send, emitWarning } = require('process');
 const { default: Stripe } = require('stripe');
 dotenv.config();
 
@@ -18,14 +18,10 @@ const geo_key = process.env.GEO_API_KEY;
 
 
 exports.getIndex = (req, res, next) => {
-  Product.find().limit(5)
-    .then(products => {
-      res.render('index', {
-        pageTitle : 'Shop',
-        path : '/',
-        prods: products
-      });
-    }) .catch(err => next(errorGet(500,err)));
+  res.render('index', {
+    pageTitle : 'Shop',
+    path : '/'
+  })
   
 };
 exports.getSecret = (req, res, next) => {
@@ -75,8 +71,28 @@ exports.postAddToCart = (req, res, next) => {
     }
   }
   req.user.cart = oldcart;
+  
   req.user.save().then(result => {
-    res.redirect('/');
+    res.redirect('/products/'+prodId+"?added=true");
+  }).catch(err => next(errorGet(500,err)));
+}
+
+exports.updateCartQuantity = (req, res, next) => {
+  const prodId = req.body.productId;
+  var newQuantity = req.body.quantity;
+  var cart = req.user.cart;
+  const index = cart.items.findIndex(p => p.productId == prodId);
+  if(index == -1){
+    return next(errorGet(404,"Product not found in cart"));
+  }
+  if(newQuantity <= 0){
+    newQuantity = 0;
+  }
+
+  cart.items[index].quantity = newQuantity;
+  req.user.cart = cart;
+  req.user.save().then(result => {
+    res.status(200).json({ message: 'Successful update' });
   }).catch(err => next(errorGet(500,err)));
 }
 exports.deleteCartItem = (req, res, next) => {
@@ -97,12 +113,15 @@ exports.postBuyNow = (req, res, next) => {
 }
 exports.getProductDetails = (req, res, next) => {
   const prodId = req.params.id;
+  const added = req.query.added;
+  
   Product.findById(prodId)
     .then(product => {
       res.render('shop/product-detail', {
         pageTitle : product.title,
         path : '/products',
-        product: product
+        product: product,
+        added : added
       });
     }) .catch(err => next(errorGet(500,err)));
 }
@@ -194,7 +213,6 @@ exports.getCheckoutSuccess = async (req, res, next) => {
 exports.getCheckoutCancel = (req, res, next) => {
 
 }
-
 exports.getContact = (req, res, next) => {
   res.render('contact', {
     pageTitle : 'Contact',
@@ -202,11 +220,13 @@ exports.getContact = (req, res, next) => {
   });
 }
 exports.getProducts = (req, res, next) => {
+  
+  res.render('shop/product-list', {
+    pageTitle : 'All Products',
+    path : '/products',
+  });
 
 }
-
-
-
 function sendOrder (cookieOrder){
   cookieOrder.cookieAddress = "1234 Fake Street";
   sendEmail(

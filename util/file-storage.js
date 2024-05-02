@@ -59,7 +59,7 @@ exports.getImageFileStorage = () => {
       };
 }
 
-exports.deleteImage = async (filePath) => {
+exports.deleteImage = (filePath) => {
         const image = filePath.split('/').pop();
         const deleteParams = {
             Bucket: process.env.IMAGES_BUCKET_NAME,
@@ -69,7 +69,7 @@ exports.deleteImage = async (filePath) => {
         const command = new DeleteObjectCommand(deleteParams);
     
         try {
-            await s3.send(command);
+            s3.send(command);
             return true
         } catch (err) {
             return false

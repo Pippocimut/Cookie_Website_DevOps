@@ -1,4 +1,3 @@
-<form action="/checkout" method="get">
+<form action="/checkout/<%= product._id %>" method="get">
     <button class="btn" type="submit">Buy now</button>
-    <input type="hidden" name="productId" value="<%= product._id %>">
 </form> 

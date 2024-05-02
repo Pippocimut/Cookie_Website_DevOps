@@ -8,6 +8,8 @@ const router = express.Router();
 router.use(isAuth);
 router.use(isAdmin);
 
+router.post('/delete-product',adminController.postDeleteProduct);
+
 router.get('/add-product',adminController.getAddProduct);
 router.get('/products', adminController.getProducts);
 
@@ -26,6 +28,6 @@ router.post('/edit-product',[
     body('description').trim().isLength({max:200})
 ], adminController.postEditProduct);
 
-router.post('/delete-product', adminController.postDeleteProduct);
+
 
 module.exports = router;

@@ -103,9 +103,9 @@ exports.postSignup = async (req, res, next) => {
   sendEmail(
         email,
         'Email Verification',
-        `<h1> Verify your email here </h1><br><p> Click this <a href="${process.env.SERVER_URL}/verification/${token}/${email}">link</a> to verify your email<p>`
+        `<h1> Verify your email here </h1><br><p> Click this <a href="${process.env.SERVER_URL}/auth/verification/${token}/${email}">link</a> to verify your email<p>`
       )
-  res.redirect('/login');
+  res.redirect('/auth/login');
 };
 exports.postLogout = (req, res, next) => {
   req.session.destroy(err => {
@@ -140,11 +140,11 @@ exports.postReset = async (req,res,next)=>{
     'Password reset',
     `
       <p> You requested a password reset <p>
-      <p> Click this <a href="${process.env.SERVER_URL}/reset/${token}">link</a> to set a new password <p>
+      <p> Click this <a href="${process.env.SERVER_URL}/auth/reset/${token}">link</a> to set a new password <p>
     `
   )
 
-  res.redirect('/login')
+  res.redirect('/auth/login')
 };
 exports.getResetPassword = async (req,res,next)=>{
 
@@ -152,7 +152,7 @@ exports.getResetPassword = async (req,res,next)=>{
   const user = await User.findOne({resetToken: token, resetTokenExpiration : {$gt:Date.now()}})
 
   if(!user){
-    return res.redirect('/login');
+    return res.redirect('/auth/login');
   }
 
   res.render('auth/new-password', {
@@ -171,14 +171,14 @@ exports.postResetPassword = async (req,res,next) =>{
 
   const user = await User.findOne({resetToken: passwordToken, resetTokenExpiration : {$gt:Date.now()}, _id :userId})
   if(!user){
-    return res.redirect('/login');
+    return res.redirect('/auth/login');
   }
   const hashedPassword = await bcrypt.hash(newPassword,12)
   user.password = hashedPassword;
   user.resetToken = null;
   user.resetTokenExpiration = undefined;
   await user.save();
-  res.redirect('/login');
+  res.redirect('/auth/login');
 
 };
 exports.getVerification = async (req,res,next) => {
@@ -187,7 +187,7 @@ exports.getVerification = async (req,res,next) => {
   const user = await User.findOne({email: email, emailVeriificationToken: token, emailVerificationTokenExpiration : {$gt:Date.now()}})
 
   if(!user){
-    return res.redirect('/login');
+    return res.redirect('/auth/login');
   }
 
   user.active = true;
@@ -203,7 +203,7 @@ exports.getVerification = async (req,res,next) => {
       })
     )
 
-  res.redirect('/login');
+  res.redirect('/auth/login');
 
 }
 exports.getAccount = (req, res, next) => {

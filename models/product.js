@@ -27,6 +27,11 @@ const productSchema = new Schema({
   created_at: {
     type: Date,
     default: Date.now
+  },
+  tags: {
+    type: [String],
+    required: false,
+    default: ["Default Tag"]
   }
 });
 

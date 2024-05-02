@@ -1,7 +1,8 @@
-const MAX_ITEM_PAGE = 1;
+const MAX_ITEM_PAGE = 4;
 const Product = require('../models/product');
 
 const paginationFunction = (totalItems,page) => {
+
     return {
       totalProducts : totalItems,
       currentPage : page,
@@ -13,26 +14,38 @@ const paginationFunction = (totalItems,page) => {
     }
   }
 
-module.exports = ((req,res,next) => {
+module.exports = async function (req,res,next) {
 
-    const page = parseInt(req.query.page) || 1;
+  const page = parseInt(req.query.page) || 1;
+  const searchValues = req.body.searchName || req.query.searchName || '';
 
-    Product.find()
+  const searchObject = searchFunction(searchValues)
+  const products = await Product.find(searchObject)
     .countDocuments()
     .then(count => {
-        res.locals.totalItems = count;
-      return Product.find()
+      res.locals.totalItems = count;
+      return Product.find(searchObject)
       .skip((page-1) * MAX_ITEM_PAGE)
       .limit(MAX_ITEM_PAGE)
     })
-    .then(products => {
-        res.locals.products = products
-        res.locals.pagination = paginationFunction(res.locals.totalItems,page)
-        return next()
-    }).catch( err => {
-        return next(err)
-    })
+  res.locals.products = products
+  res.locals.pagination = paginationFunction(res.locals.totalItems,page)
+  next()
+};
 
-    
-    
-});
+function searchFunction(searchValues){
+
+  const splitSearchValues = searchValues.split(' ');
+  var finalPattern = '';
+  splitSearchValues.forEach((value) => {
+    finalPattern += `(?=.*\\b${value}\\b)`;
+  });
+
+  finalPattern = '^'+finalPattern+'.+';
+
+  const updatetSearchValues = finalPattern
+  const searcPattern = new RegExp(updatetSearchValues, 'i');
+  const searchObject  = searchValues ? {'title': {'$regex': searcPattern}} : {}
+
+  return searchObject
+}
