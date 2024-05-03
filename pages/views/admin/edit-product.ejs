@@ -14,12 +14,12 @@
             <div class="header">
                 <label for="title">Title</label>
                 <input class="title <%= validationErrors.find(e => e.param === 'title')? 'invalid':''%>"
-                type="text" name="title" id="title" value="<% if (editing|| hasError) { %><%= product.title %><% } %>">
+                type="text" name="title" id="title" value="<% if (editing ) { %><%= product.title %><% } %>">
             </div>
             <div class="image">
                 <label for="image">Image</label>
                 <input type="file" name="image" id="image">
-                <img src="" alt="Image place holder" id="outImage" class="image_display">
+                <img src="<% if (editing ) { %><%= product.imageUrl %><% } %>" alt="Image place holder" id="outImage" class="image_display" style="<% if (!(editing)) { %>display: none; <% } %>">
                 <script>
                     document.getElementById('image').onchange = function (evt) {
                         var tgt = evt.target || window.event.srcElement,
@@ -47,12 +47,12 @@
             <div class="content">
                 <label for="price">Price</label>
                 <input class="price <%= validationErrors.find(e => e.param === 'price')? 'invalid':''%>"
-                type="number" name="price" id="price" step="0.01" value="<% if (editing|| hasError) { %><%= product.price %><% } %>">
+                type="number" name="price" id="price" step="0.01" value="<% if (editing ) { %><%= product.price %><% } %>">
             </div>
             <div class="form-control">
                 <label for="description">Description</label>
                 <textarea class="<%= validationErrors.find(e => e.param === 'description')? 'invalid':''%>"
-                    name="description" id="description" rows="5"><% if (editing || hasError) { %><%= product.description %><% } %></textarea>
+                    name="description" id="description" rows="5"><% if (editing  ) { %><%= product.description %><% } %></textarea>
             </div>
             
             <% if (editing) { %>

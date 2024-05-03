@@ -76,7 +76,6 @@ exports.postAddToCart = (req, res, next) => {
     res.redirect('/products/'+prodId+"?added=true");
   }).catch(err => next(errorGet(500,err)));
 }
-
 exports.updateCartQuantity = (req, res, next) => {
   const prodId = req.body.productId;
   var newQuantity = req.body.quantity;
@@ -138,7 +137,10 @@ exports.getCheckoutCart = async (req, res, next) => {
   
   const order = await createOrder(req,products);
 
-  const session = await setUpStripe(products,order);
+  const success_url = process.env.SERVER_URL+'/checkout/success?orderId='+order._id+'&orderToken='+order.confirmationToken+'&clearCart=true';
+  const cancel_url = process.env.SERVER_URL+'/checkout/failed?orderId='+order._id;
+
+  const session = await setUpStripe(products,success_url,cancel_url);
   res.render('shop/checkout', {
     pageTitle : 'Checkout Cart',
     path : '/checkout',
@@ -163,7 +165,10 @@ exports.getCheckoutProduct = async (req, res, next) => {
 
       return createOrder(req,[item])}).then(order => {
 
-      return setUpStripe([item],order)
+      const success_url = process.env.SERVER_URL+'/checkout/success?orderId='+order._id+'&orderToken='+order.confirmationToken;
+      const cancel_url = process.env.SERVER_URL+'/checkout/failed?orderId='+order._id;
+
+      return setUpStripe([item],success_url,cancel_url)
     }).then(session => {
       res.render('shop/checkout', {
         pageTitle : 'Checkout Product',
@@ -180,6 +185,7 @@ exports.getCheckoutSuccess = async (req, res, next) => {
 
   const orderId = req.query.orderId;
   const orderToken = req.query.orderToken;
+  const clearCart = req.query.clearCart;
 
   const secret = "nobody knows the secret key but me"+orderId.toString();
   const token = await bcrypt.hash(secret,12);
@@ -205,11 +211,12 @@ exports.getCheckoutSuccess = async (req, res, next) => {
     'Order Confirmation',
     `Orders have been successfully made.`
   )
-  req.user.cart = {items:[]};
-
-  req.user.save().then(result => {
-    res.redirect('/');}).catch(err => next(errorGet(500,err)));
-}
+  if(clearCart){
+    req.user.cart = {items:[]};
+    await req.user.save()
+  }
+  res.redirect('/');
+}  
 exports.getCheckoutCancel = (req, res, next) => {
 
 }
@@ -235,7 +242,7 @@ function sendOrder (cookieOrder){
     `You have successfully ordered ${cookieOrder.cookieAmount} ${cookieOrder.cookieName} cookies. The total price is ${cookieOrder.cookiePrice} at address ${cookieOrder.cookieAddress}`
   )
 }
-async function setUpStripe(items,order){
+async function setUpStripe(items,success_url,cancel_url){
 
   const lineItems = items.map(item => {
     return {
@@ -255,8 +262,8 @@ async function setUpStripe(items,order){
     payment_method_types: ['card'],
     line_items: lineItems,
     mode: 'payment',
-    success_url: process.env.SERVER_URL+'/checkout/success?orderId='+order._id+'&orderToken='+order.confirmationToken,
-    cancel_url: process.env.SERVER_URL+'/checkout/failed?orderId='+order._id,
+    success_url: success_url,
+    cancel_url: cancel_url,
   });
 }
 const errorGet = (status_code,err)=>{

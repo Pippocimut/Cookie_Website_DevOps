@@ -24,22 +24,22 @@
         <div class="login">
             <% if (!isAuthenticated) { %>
                 <li class="item">
-                    <a class="<%= path === '/login' ? 'active' : '' %>" href="/login">Login</a>
+                    <a class="<%= path === '/login' ? 'active' : '' %>" href="/auth/login">Login</a>
                 </li>
                 <li class="item">
-                    <a class="<%= path === '/signup' ? 'active' : '' %>" href="/signup">Signup</a>
+                    <a class="<%= path === '/signup' ? 'active' : '' %>" href="/auth/signup">Signup</a>
                 </li>
             <% } else { %>
                 <li class="item" >
                     <a class="<%= path === '/cart' ? 'active' : '' %>" href="/cart">Cart</a>
                 </li>
                 <li class="item">
-                    <form action="/logout" method="post">
+                    <form action="/auth/logout" method="post">
                         <button type="submit">Logout</button>
                     </form>
                 </li>
                 <li class="item">
-                    <a class="<%= path === '/account' ? 'active' : '' %>"  href="/account">
+                    <a class="<%= path === '/account' ? 'active' : '' %>"  href="/auth/account">
                         <img src="/images/user.png" alt="Account icon">
                     </a>
                 </li>

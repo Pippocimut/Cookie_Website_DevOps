@@ -17,9 +17,8 @@ const paginationFunction = (totalItems,page) => {
 module.exports = async function (req,res,next) {
 
   const page = parseInt(req.query.page) || 1;
-  const searchValues = req.body.searchName || req.query.searchName || '';
 
-  const searchObject = searchFunction(searchValues)
+  const searchObject = searchFunction(req)
   const products = await Product.find(searchObject)
     .countDocuments()
     .then(count => {
@@ -33,19 +32,39 @@ module.exports = async function (req,res,next) {
   next()
 };
 
-function searchFunction(searchValues){
+function searchFunction(req){
+  
+  const searchValues = req.body.searchName || req.query.searchName || '';
+  const priceRange = req.body.priceRange || req.query.priceRange || '';
+  var searchObject = {}
 
-  const splitSearchValues = searchValues.split(' ');
-  var finalPattern = '';
-  splitSearchValues.forEach((value) => {
-    finalPattern += `(?=.*\\b${value}\\b)`;
-  });
+  try{
+    const priceRangeArray = priceRange.split('-').map(p=>{
+      if (p === "min")
+        return -Infinity
+      if (p === "max")
+        return Infinity
+      return parseFloat(p)
+    });
+    const splitSearchValues = searchValues.split(' ');
+    var finalPattern = '';
+    splitSearchValues.forEach((value) => {
+      finalPattern += `(?=.*\\b${value}\\b)`;
+    });
 
-  finalPattern = '^'+finalPattern+'.+';
+    finalPattern = '^'+finalPattern+'.+';
 
-  const updatetSearchValues = finalPattern
-  const searcPattern = new RegExp(updatetSearchValues, 'i');
-  const searchObject  = searchValues ? {'title': {'$regex': searcPattern}} : {}
+    const updatetSearchValues = finalPattern
+    const searcPattern = new RegExp(updatetSearchValues, 'i');
+    if(searchValues !== ''){
+      searchObject.title = {'$regex': searcPattern};
+    }
+    if(priceRangeArray.length === 2){
+      searchObject.price = {'$gte': priceRangeArray[0], '$lte': priceRangeArray[1]};
+    }
+  }
+  finally{
+    return searchObject
+  }
 
-  return searchObject
 }

@@ -121,21 +121,22 @@ form {
 }
 
 .btn.danger {
-  color: var(--error);
-  border-color: var(--error);
+  color: var(--error-dark);
+  border-color: var(--error-dark);
+  background-color: var(--error-light);
 }
 
 .btn.danger:hover,
 .btn.danger:active {
-  background: var(--error);
-  color: var(--dark);
+  background: var(--error-dark);
+  color: var(--error-light);
 }
 
 .user-message--error{
   text-align: center;
-  border-color: var(--error);
-  background: var(--error_background);
-  color: var(--error);
+  border-color: var(--error-dark);
+  background: var(--error-light);
+  color: var(--error-dark);
   width: fit-content;
   margin: auto;
   padding: 0.5rem;
