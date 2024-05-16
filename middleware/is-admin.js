@@ -1,12 +1,16 @@
 module.exports = ((req,res,next) => {
 
-    if(!(req.session.user.role === 'admin')){
-        return res.status(401).render('401', {
-            pageTitle: 'Not authorized',
-            path: '/401',
-            isAuthenticated: req.session.isLoggedIn
-          });
+    if(req.session === undefined){
+        return res.status(404).json({message: 'No session in request'});
     }
-    console.log("Admin authorized")
+
+    if(req.session.user === undefined){
+        return res.status(404).json({message: 'No user in session'});
+    }
+
+    if(!(req.session.user.role === 'admin')){
+        return res.status(401).json({message: 'Unauthorized'});
+    }
+    
     next();
 });

@@ -2,69 +2,7 @@ const Product = require('../models/product');
 const {validationResult} = require('express-validator')
 const s3Helper = require('../util/file-storage')
 
-const errorGet = (status_code,err)=>{
-  const error = new Error(err);
-  error.httpStatusCode = status_code;
-  return error;
-};
-const errorLocals = (errors) =>{
-  if(!errors.isEmpty())
-  return {
-    hasError : true,
-    errorMessage : errors.array()[0].msg,
-    validationErrors : errors.array()
-  }
-  else 
-  return {
-    hasError : false,
-    errorMessage : null,
-    validationErrors : []
-  }
-}
-
-exports.getAddProduct = (req, res, next) => {
-  res.render('admin/edit-product', {
-    pageTitle: 'Add Product',
-    path: '/admin/add-product',
-    editing: false,
-  });
-};
-exports.getEditProduct = (req, res, next) => {
-
-  //Not sure about this error handling, I'll have to check it out later
-  /* const editMode = req.query.edit;
-  if (!editMode) {
-    return res.redirect('/');
-  }
- */
-  const prodId = req.params.productId;
-
-  Product.findById(prodId)
-    .then(product => {
-      if (!product) {
-        return res.redirect('/');
-      }
-      res.render('admin/edit-product', {
-        pageTitle: 'Edit Product',
-        path: '/admin/edit-product',
-        editing: true,//editMode,
-        product: product,
-      });
-    })
-    .catch(err =>{
-      return next(errorGet(500,err));
-    });
-};
-exports.getProducts = async (req, res, next) => {
-
-  const products = await Product.find({userId : req.user._id})
-  res.render('admin/products', {
-    prods: products,
-    pageTitle: 'Admin Products',
-    path: '/admin/products',
-  });
-};
-exports.postEditProduct = async (req, res, next) => {
+exports.EditProduct = async (req, res, next) => {
 
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
@@ -104,10 +42,10 @@ exports.postEditProduct = async (req, res, next) => {
 
   await product.save()
 
-  res.redirect('/');
+  res.json({message: 'Product updated successfully.'});
 };
 
-exports.postDeleteProduct = async (req, res, next) => {
+exports.DeleteProduct = async (req, res, next) => {
 
   const prodId = req.body.productId;
   const product = await Product.findById(prodId)
@@ -116,11 +54,12 @@ exports.postDeleteProduct = async (req, res, next) => {
   }
   s3Helper.deleteImage(product.imageUrl);
   await Product.deleteOne({ _id:prodId})
-  res.redirect('/');
+  res.json({message: 'Product deleted successfully.'});
   
 };
-exports.postAddProduct = async (req, res, next) => {
+exports.AddProduct = async (req, res, next) => {
 
+  console.log("Entered Add Product")
   const newProduct = {
     title : req.body.title,
     price : req.body.price,
@@ -132,26 +71,13 @@ exports.postAddProduct = async (req, res, next) => {
   const errors = validationResult(req)
 
   if(!image){
-
-    return res.status(422).render('admin/edit-product', {
-      pageTitle: 'Add Product',
-      path: '/admin/add-product',
-      editing: false,
-      product: newProduct,
-      ...errorLocals(errors)
-    });
+    return res.status(422).json( {message: errors.array()[0].msg})
   }
 
   if(!errors.isEmpty()){
-    return res.status(422).render('admin/edit-product', {
-      pageTitle: 'Add Product',
-      path: '/admin/add-product',
-      editing: false,
-      product: newProduct,
-      ...errorLocals(errors)
-    });
+    return res.status(422).json( {message: errors.array()[0].msg})
   }
-
+  console.log("Creating product")
   const product = new Product({
     ...newProduct,
     imageUrl: image.location,
@@ -160,5 +86,5 @@ exports.postAddProduct = async (req, res, next) => {
 
   await product.save()
   
-  res.redirect('/');
+  res.json({message: 'Product added successfully.'});
 };
