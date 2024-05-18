@@ -46,6 +46,7 @@ app.use(
     store: store
   })
 );
+//app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(bodyParser.json());
 app.use('/images',express.static(process.env.IMAGE_URL));
