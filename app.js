@@ -124,7 +124,7 @@ mongoose
   .connect(process.env.MONGODB_URI, { useUnifiedTopology: true, useNewUrlParser: true })
   .then(result => {
     console.log("Server started no issue")
-    app.listen(process.env.PORT);
+    app.listen(process.env.WEBSITES_PORT);
   })
   .catch(err => {
     console.log("Error during server start: "+err);
