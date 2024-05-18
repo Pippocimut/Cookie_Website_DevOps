@@ -51,7 +51,7 @@ app.use(bodyParser.json());
 app.use('/images',express.static(process.env.IMAGE_URL));
 
 app.use(cors({
-  origin: '*', // replace with your client's domain
+  origin: process.env.ORIGIN, // replace with your client's domain
   methods:['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'], // the HTTP methods allowed
   credentials: true, // allow cookies to be sent with requests
   allowedHeaders: ['Content-Type', 'Authorization'] // the headers that are allowed in requests
