@@ -27,10 +27,19 @@ exports.EditProduct = async (req, res, next) => {
     });
   }
 
+  console.log(prodId)
   const product = await Product.findById(prodId)
-  if(product.userId.toString() !== req.user._id.toString()){
-    return res.redirect('/')
+  console.log(product)
+  if(!product){
+    return res.status(404).json({message: 'Product not found.'});
   }
+
+  //This function should restrict the user from editing products they did not create
+  /* if(product.userId.toString() !== req.user._id.toString()){
+    console.log(product.userId.toString())
+    console.log(req.user._id.toString())
+    return res.status(401).json({message: 'Unauthorized.'});
+  } */
   product.title = updatedTitle;
   product.price = updatedPrice;
   product.description = updatedDesc;
@@ -47,7 +56,7 @@ exports.EditProduct = async (req, res, next) => {
 
 exports.DeleteProduct = async (req, res, next) => {
 
-  const prodId = req.body.productId;
+  const prodId = req.params.id;
   const product = await Product.findById(prodId)
   if(!product){
     return next(new Error('Product not found.'))
@@ -88,3 +97,7 @@ exports.AddProduct = async (req, res, next) => {
   
   res.json({message: 'Product added successfully.'});
 };
+
+exports.getSecret = (req, res, next) => {
+  res.json({message: 'The secret answer to life, the universe, and everything is 42.'});
+}

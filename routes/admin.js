@@ -11,7 +11,9 @@ const router = express.Router();
 router.use(isAuth);
 router.use(isAdmin);
 
-router.delete('/product',adminController.DeleteProduct);
+
+router.get('/secret', adminController.getSecret);
+router.delete('/product/:id',adminController.DeleteProduct);
 router.post('/product',[
     check('title').isString().isLength({min:3}).trim(),
     check('price').isFloat(),

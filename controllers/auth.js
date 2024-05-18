@@ -64,7 +64,7 @@ exports.postSignup = async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const confirmPassword = req.body.confirmPassword;
-
+  console.log("postSignup")
   res.locals.oldInput = { email: email, password: password, confirmPassword: confirmPassword};
 
   const errors = validationResult(req)
@@ -90,7 +90,7 @@ exports.postSignup = async (req, res, next) => {
   sendEmail(
         email,
         'Email Verification',
-        `<h1> Verify your email here </h1><br><p> Click this <a href="${process.env.SERVER_URL}/auth/verification/${token}/${email}">link</a> to verify your email<p>`
+        `<h1> Verify your email here </h1><br><p> Click this <a href="${process.env.SERVER_URL}/auth/emailVerification?token=${token}&email=${email}">link</a> to verify your email<p>`
       )
   res.status(200).json({ message: 'Signup successful.' });
 };
@@ -175,7 +175,7 @@ exports.getVerification = async (req,res,next) => {
   const user = await User.findOne({email: email, emailVeriificationToken: token, emailVerificationTokenExpiration : {$gt:Date.now()}})
 
   if(!user){
-    return res.redirect('/auth/login');
+    return res.status(422).json({errorMessage: 'Invalid email or token.'});
   }
 
   user.active = true;
@@ -191,7 +191,7 @@ exports.getVerification = async (req,res,next) => {
       })
     )
 
-  res.redirect('/auth/login');
+  res.status(200).json({message: 'Email verified successfully.'});
 
 }
 exports.getAccount = (req, res, next) => {
@@ -201,3 +201,4 @@ exports.getAccount = (req, res, next) => {
     user : req.user
   });
 }
+
