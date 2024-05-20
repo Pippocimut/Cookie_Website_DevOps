@@ -53,6 +53,7 @@ router.get('/verify', isAuth, authController.getVerifyUser);
 router.get('/logout', isAuth, authController.getLogout);
 //router.get('/user-data', isAuth, authController.getUser);
 router.get('/account', isAuth, authController.getAccount);
+router.get('/session', isAuth, authController.getSession);
 
 router.post('/login',
     [check('email').isEmail().withMessage("Please enter a valid email").normalizeEmail(),

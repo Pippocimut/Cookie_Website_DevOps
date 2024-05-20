@@ -202,3 +202,7 @@ exports.getAccount = (req, res, next) => {
   });
 }
 
+exports.getSession = (req, res, next) => {
+  res.status(200).json({});
+}
+

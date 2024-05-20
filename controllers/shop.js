@@ -17,14 +17,18 @@ exports.getCart = async (req, res, next) => {
   }
 
   const user = await User.findById(req.user._id).populate('cart.items.productId');
-  const products = user.cart.items.map(i => {
-    return { productData: i.productId, quantity: i.quantity };
-  });
-  res.json({
-    pageTitle: 'Your Cart',
-    path: '/cart',
-    products: products
-  });
+  const products = await user.populate('cart.items.productId').execPopulate().then(user => {
+    console.log(user.cart.items);
+    return user.cart.items.map(i => {
+      if(i.productId) {
+        return { productData: i.productId._id, quantity: i.quantity, price: i.productId.price, title: i.productId.title};
+      }
+    }).filter(p => p != undefined);
+  })
+
+  console.log(products);
+
+  res.json(products);
 };
 exports.postAddToCart = (req, res, next) => {
   const prodId = req.body.productId;
@@ -111,9 +115,12 @@ exports.getProductDetails = (req, res, next) => {
 exports.getCheckoutCart = async (req, res, next) => {
   const user = await User.findById(req.user._id).populate('cart.items.productId');
   const products = user.cart.items.map(i => {
-    return { productData: i.productId, quantity: i.quantity };
-  });
+    if(i.productId) {
+      return { productData: i.productId, quantity: i.quantity };
+    }
+  }).filter(p => p != undefined);
   let totalPrice = 0;
+  console.log(products)
   for (let i = 0; i < products.length; i++) {
     totalPrice += products[i].productData.price * products[i].quantity;
   }
@@ -130,15 +137,7 @@ exports.getCheckoutCart = async (req, res, next) => {
   const cancel_url = process.env.SERVER_URL + '/checkout/failed?orderId=' + order._id;
 
   const session = await setUpStripe(products, success_url, cancel_url);
-  res.json({
-    pageTitle: 'Checkout Cart',
-    path: '/checkout',
-    products: products,
-    sessionId: session.id,
-    totalPrice: totalPrice,
-    geoAPIKey: geo_key,
-    StripePublishableKey: process.env.STRIPE_PUBLIC_API_KEY
-  });
+  res.json(session.id);
 };
 exports.getCheckoutProduct = async (req, res, next) => {
   const prodId = req.params.prodId;
